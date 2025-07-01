@@ -14,7 +14,7 @@ LabSceneWidget::LabSceneWidget(QWidget *parent) : QWidget(parent) {
     mapWidth = background.width();
     mapHeight = background.height();
 
-    player = new Player(100, 100); // 初始位置
+    player = new Player(215, 205); // 初始位置
     addLabBarrier();
 
     posLabel = new QLabel(this);
@@ -31,8 +31,8 @@ void LabSceneWidget::addLabBarrier()
     barriers.append(new SolidBarrier(0, 245, 175, 65));     //左邊書架
     barriers.append(new SolidBarrier(0, 90, 30, 65));       //左邊兩台電腦
     barriers.append(new SolidBarrier(30, 105, 75, 85));     //傳送器
-    barriers.append(new SolidBarrier(415, 370, 35, 60));    //右下花瓶
-    barriers.append(new SolidBarrier(0, 370, 35, 60));      //左下花瓶
+    barriers.append(new SolidBarrier(415, 380, 35, 60));    //右下花瓶
+    barriers.append(new SolidBarrier(0, 380, 35, 60));      //左下花瓶
     // barriers.append(new Ledge(300, 200, 100, 20, Ledge::DOWN)); // 放置 ledge
 }
 
@@ -105,9 +105,12 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
     }
 
     else if (event->key() == Qt::Key_A) { // 互動鍵
+        qDebug() << "Press A for interaction";
         for (Barrier* barrier : barriers) {
-            if (barrier->canInteract(player->getX(), player->getY())) {
-                barrier->interact();
+            NPCBarrier* npc = dynamic_cast<NPCBarrier*>(barrier);
+            if (npc && npc->canInteract(player->getX(), player->getY())) {
+                qDebug() << "NPC interaction triggered";
+                npc->interact(this); // 傳入 LabSceneWidget 作為 parent
                 break;
             }
         }

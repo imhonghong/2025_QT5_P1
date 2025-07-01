@@ -1,4 +1,5 @@
 #include "NPCBarrier.h"
+#include "DialogWidget.h"
 #include <QDebug>
 #include <QPainter>
 
@@ -11,12 +12,19 @@ bool NPCBarrier::isPassable(int playerX, int playerY, int direction) const {
 }
 
 bool NPCBarrier::canInteract(int playerX, int playerY) const {
-    return rect.intersects(QRect(playerX, playerY, 35, 48));
+    QRect playerRect(playerX, playerY, 35, 48);
+    QRect interactZone = rect.adjusted(-10, -10, 10, 10); // 擴大10px範圍
+    return interactZone.intersects(playerRect);
 }
 
-void NPCBarrier::interact() {
-    qDebug() << "NPC: Hello, I am Professor Oak!";
+void NPCBarrier::interact(QWidget *parent) {
+    QStringList dialogues = {
+        "I am Professor Oak. Welcome to my laboratory!",
+        "You can choose one from three Poké Balls\n as your initial Pokémon in Laboratory."
+    };
+    new DialogWidget(dialogues, parent);
 }
+
 
 void NPCBarrier::draw(QPainter *painter, int offsetX, int offsetY) const{
     if (!npcPixmap.isNull()) {
