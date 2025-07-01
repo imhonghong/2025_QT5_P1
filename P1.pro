@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     LabSceneWidget.cpp \
+    Player.cpp \
     TitleSceneWidget.cpp \
     main.cpp \
     MainWindow.cpp
@@ -17,6 +18,7 @@ SOURCES += \
 HEADERS += \
     LabSceneWidget.h \
     MainWindow.h \
+    Player.h \
     TitleSceneWidget.h
 
 FORMS += \
