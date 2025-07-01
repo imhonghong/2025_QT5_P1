@@ -10,15 +10,20 @@ CONFIG += c++11
 
 SOURCES += \
     LabSceneWidget.cpp \
+    NPCBarrier.cpp \
     Player.cpp \
     TitleSceneWidget.cpp \
     main.cpp \
     MainWindow.cpp
 
 HEADERS += \
+    Barrier.h \
     LabSceneWidget.h \
+    Ledge.h \
     MainWindow.h \
+    NPCBarrier.h \
     Player.h \
+    SolidBarrier.h \
     TitleSceneWidget.h
 
 FORMS += \

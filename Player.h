@@ -16,6 +16,7 @@ public:
     int getY() const;
 
     void setDirection(Direction dir);
+    Direction getDirection() const {return direction;}
     void setWalking(bool walking);
     void updateWalkFrame();
 
