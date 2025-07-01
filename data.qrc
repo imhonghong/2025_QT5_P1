@@ -1,0 +1,58 @@
+<RCC>
+    <qresource prefix="/scene">
+        <file>data/scene/game_over.png</file>
+        <file>data/scene/GrassLand.png</file>
+        <file>data/scene/lab.png</file>
+        <file>data/scene/start_menu.png</file>
+        <file>data/scene/Town.png</file>
+    </qresource>
+    <qresource prefix="/player">
+        <file>data/player/player_B.png</file>
+        <file>data/player/player_BW1.png</file>
+        <file>data/player/player_BW2.png</file>
+        <file>data/player/player_F.png</file>
+        <file>data/player/player_FW1.png</file>
+        <file>data/player/player_FW2.png</file>
+        <file>data/player/player_L.png</file>
+        <file>data/player/player_LW1.png</file>
+        <file>data/player/player_LW2.png</file>
+        <file>data/player/player_R.png</file>
+        <file>data/player/player_RW1.png</file>
+        <file>data/player/player_RW2.png</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>data/icon/Ether_bag.png</file>
+        <file>data/icon/Pokeball_bag.png</file>
+        <file>data/icon/Potion_bag.png</file>
+    </qresource>
+    <qresource prefix="/battle">
+        <file>data/battle/battle_scene.png</file>
+        <file>data/battle/blastoise.png</file>
+        <file>data/battle/blastoise_back.png</file>
+        <file>data/battle/bulbasaur.png</file>
+        <file>data/battle/bulbasaur_back.png</file>
+        <file>data/battle/charizard.png</file>
+        <file>data/battle/charizard_back.png</file>
+        <file>data/battle/charmander.png</file>
+        <file>data/battle/charmander_back.png</file>
+        <file>data/battle/charmeleon.png</file>
+        <file>data/battle/charmeleon_back.png</file>
+        <file>data/battle/fight_skill.png</file>
+        <file>data/battle/ivysaur.png</file>
+        <file>data/battle/ivysaur_back.png</file>
+        <file>data/battle/squirtle.png</file>
+        <file>data/battle/squirtle_back.png</file>
+        <file>data/battle/venusaur.png</file>
+        <file>data/battle/venusaur_back.png</file>
+        <file>data/battle/wartortle.png</file>
+        <file>data/battle/wartortle_back.png</file>
+    </qresource>
+    <qresource prefix="/other">
+        <file>data/bag.png</file>
+        <file>data/ball.png</file>
+        <file>data/box.png</file>
+        <file>data/dialog.png</file>
+        <file>data/item_bag_background.png</file>
+        <file>data/NPC.png</file>
+    </qresource>
+</RCC>
