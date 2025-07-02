@@ -9,6 +9,9 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Bag.cpp \
+    BagWidget.cpp \
+    BoxBarrier.cpp \
     DialogWidget.cpp \
     GrasslandSceneWidget.cpp \
     LabSceneWidget.cpp \
@@ -20,7 +23,10 @@ SOURCES += \
     MainWindow.cpp
 
 HEADERS += \
+    Bag.h \
+    BagWidget.h \
     Barrier.h \
+    BoxBarrier.h \
     DialogWidget.h \
     GrasslandSceneWidget.h \
     LabSceneWidget.h \

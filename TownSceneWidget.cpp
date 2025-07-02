@@ -1,9 +1,11 @@
 #include "TownSceneWidget.h"
+#include "BoxBarrier.h"
+#include "BagWidget.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
 
-TownSceneWidget::TownSceneWidget(QWidget *parent) : QWidget(parent) {
+TownSceneWidget::TownSceneWidget(Bag *bag, QWidget *parent) : QWidget(parent), bag(bag) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -82,6 +84,17 @@ void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
     int step = 5;
     player->setWalking(true);
     int dx = 0, dy = 0;
+    if (!canMove) {
+        if (event->key() == Qt::Key_B) {
+            if (bagWidget && bagWidget->isVisible()) {
+                bagWidget->close();
+                bagWidget = nullptr;
+                canMove = true;
+                return;
+            }
+        }
+        return;
+    }
     if (event->key() == Qt::Key_Left) {
         player->setDirection(Player::LEFT);
         dx = -step;
@@ -107,28 +120,49 @@ void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
         player->setDirection(Player::DOWN);
         dy = step;
     }
-    else if (event->key() == Qt::Key_A) { // 互動鍵
+    else if (event->key() == Qt::Key_A) {
         for (Barrier* barrier : barriers) {
-            NPCBarrier* npc = dynamic_cast<NPCBarrier*>(barrier);
-            if (npc && npc->canInteract(player->getX(), player->getY())) {
-                npc->interact(this);
-                break;
+            if (auto npc = dynamic_cast<NPCBarrier*>(barrier)) {
+                if (npc->canInteract(player->getX(), player->getY())) {
+                    npc->interact(this);
+                    update();
+                    return;
+                }
             }
+            else if (auto box = dynamic_cast<BoxBarrier*>(barrier)) {
+                if (box->canInteract(player->getX(), player->getY())) {
+                    box->interact(this, bag);
+                    update();
+                    return;
+                }
+            }
+        }
+    }
+    else if (event->key() == Qt::Key_B) {
+        if (bagWidget && bagWidget->isVisible()) {
+            bagWidget->close();
+            bagWidget = nullptr;
+            canMove = true;
+        } else {
+            bagWidget = new BagWidget(bag, this);
+            bagWidget->show();
+            canMove = false; // 禁止移動
         }
     }
     int nextX = player->getX() + dx;
     int nextY = player->getY() + dy;
-    bool canMove = true;
+
 
     // 檢查 Barrier 碰撞
+    bool blocked = false;
     for (const Barrier* barrier : barriers) {
         if (!barrier->isPassable(nextX, nextY, player->getDirection())) {
-            canMove = false;
+            blocked = true;
             break;
         }
     }
 
-    if (canMove) {
+    if (!blocked) {
         player->move(dx, dy, mapWidth, mapHeight);
     }
 
@@ -168,5 +202,10 @@ void TownSceneWidget::addTownBarrier()
     barriers.append(new NPCBarrier(670, 805, 40, 40,
         {"This is Pallet Town. Begin your adventure!"},""));
 
+    barriers.append(new BoxBarrier(
+        600, 700, 35, 35,
+        "Potion", 1,
+        ":/item/data/item/box.png"
+    ));
 }
 

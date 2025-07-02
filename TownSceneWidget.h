@@ -9,13 +9,14 @@
 #include "SolidBarrier.h"
 #include "NPCBarrier.h"
 #include "Player.h"
-
+#include "Bag.h"
+#include "BagWidget.h"
 
 class TownSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TownSceneWidget(QWidget *parent = nullptr);
+    explicit TownSceneWidget(Bag *bag, QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -30,6 +31,9 @@ private:
     QPixmap background;
     Player *player;
     QVector<Barrier*> barriers;
+    Bag* bag;
+    BagWidget *bagWidget = nullptr;
+    bool canMove = true;
 
     const int windowWidth = 525;
     const int windowHeight = 450;

@@ -3,13 +3,15 @@
 #include <QMouseEvent>
 
 
-DialogWidget::DialogWidget(const QStringList &textList, QWidget *parent) : QWidget(parent), texts(textList) {
+DialogWidget::DialogWidget(const QStringList &textList, QWidget *parent, bool autoClose) : QWidget(parent), texts(textList) {
     setFixedSize(400, 150);
     setAttribute(Qt::WA_DeleteOnClose);
 
     setFocusPolicy(Qt::StrongFocus); // 可接收鍵盤事件
     setFocus();                      // 自動取得焦點
-
+    if (autoClose) {
+        QTimer::singleShot(400, this, SLOT(close()));
+    }
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 

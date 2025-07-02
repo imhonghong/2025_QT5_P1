@@ -9,18 +9,19 @@ MainWindow::MainWindow(QWidget *parent)
       stackedWidget(new QStackedWidget(this)),
       titleScene(new TitleSceneWidget),
       labScene(new LabSceneWidget),
-      townScene(new TownSceneWidget),
       grasslandScene(new GrasslandSceneWidget)
 {
     setFixedSize(525, 450);
     setCentralWidget(stackedWidget);
+
+    bag = new Bag();
+    townScene = new TownSceneWidget(bag);
 
     stackedWidget->addWidget(titleScene);
     stackedWidget->addWidget(labScene);
     stackedWidget->addWidget(townScene);
     stackedWidget->addWidget(grasslandScene);
     stackedWidget->setCurrentWidget(titleScene);
-
     setupConnections();
 }
 
