@@ -1,3 +1,4 @@
+
 #include "LabSceneWidget.h"
 #include "SolidBarrier.h"
 #include "NPCBarrier.h"
@@ -39,7 +40,6 @@ void LabSceneWidget::addLabBarrier()
     barriers.append(new SolidBarrier(30, 105, 75, 85));     //傳送器
     barriers.append(new SolidBarrier(415, 380, 35, 60));    //右下花瓶
     barriers.append(new SolidBarrier(0, 380, 35, 60));      //左下花瓶
-    // barriers.append(new Ledge(300, 200, 100, 20, Ledge::DOWN)); // 放置 ledge
 }
 
 void LabSceneWidget::paintEvent(QPaintEvent *event) {

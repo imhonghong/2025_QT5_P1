@@ -26,12 +26,14 @@ void TownSceneWidget::paintEvent(QPaintEvent *event) {
     painter.fillRect(rect(), Qt::black); // 背景填黑
 
     // 計算圖片左上在視窗中的繪製位置，使玩家保持螢幕中央
-    int playerScreenX = windowWidth / 2 - player->getRect().width() / 2;
-    int playerScreenY = windowHeight / 2 - player->getRect().height() / 2;
-
     int bgX = player->getX() + player->getRect().width() / 2 - windowWidth / 2;
-    int bgY = player->getY() + player->getRect().height() / 2 - windowHeight / 2;
+    bgX = (bgX < 0) ? 0 : (bgX > mapWidth - windowWidth) ? (mapWidth - windowWidth) : bgX;
 
+    int bgY = player->getY() + player->getRect().height() / 2 - windowHeight / 2;
+    bgY = (bgY < 0) ? 0 : (bgY > mapHeight - windowHeight) ? (mapHeight - windowHeight) : bgY;
+
+    int playerScreenX = player->getX() - bgX;
+    int playerScreenY = player->getY() - bgY;
     // 計算來源區塊 (視窗大小) 與目標繪製位置
     QRect srcRect(
         std::max(0, bgX),
@@ -133,8 +135,6 @@ void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
     player->updateWalkFrame();
     posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
-
-
 }
 
 void TownSceneWidget::keyReleaseEvent(QKeyEvent *event) {
@@ -167,8 +167,6 @@ void TownSceneWidget::addTownBarrier()
         {"This is Pallet Town. Begin your adventure!"},""));
     barriers.append(new NPCBarrier(670, 805, 40, 40,
         {"This is Pallet Town. Begin your adventure!"},""));
-
-
 
 }
 

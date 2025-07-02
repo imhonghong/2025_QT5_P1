@@ -3,7 +3,9 @@
 #include <QWidget>
 #include <QPixmap>
 #include <QLabel>
+
 #include "Player.h"
+#include "Barrier.h"
 
 class GrasslandSceneWidget : public QWidget {
     Q_OBJECT
@@ -22,6 +24,7 @@ protected:
 private:
     QPixmap background;
     Player *player;
+    QVector<Barrier*> barriers;
 
     const int windowWidth = 525;
     const int windowHeight = 450;
@@ -29,4 +32,5 @@ private:
     int mapHeight;
 
     QLabel *posLabel;
+    void addGrasslandBarrier();
 };
