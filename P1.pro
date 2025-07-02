@@ -10,23 +10,27 @@ CONFIG += c++11
 
 SOURCES += \
     DialogWidget.cpp \
+    GrasslandSceneWidget.cpp \
     LabSceneWidget.cpp \
     NPCBarrier.cpp \
     Player.cpp \
     TitleSceneWidget.cpp \
+    TownSceneWidget.cpp \
     main.cpp \
     MainWindow.cpp
 
 HEADERS += \
     Barrier.h \
     DialogWidget.h \
+    GrasslandSceneWidget.h \
     LabSceneWidget.h \
     Ledge.h \
     MainWindow.h \
     NPCBarrier.h \
     Player.h \
     SolidBarrier.h \
-    TitleSceneWidget.h
+    TitleSceneWidget.h \
+    TownSceneWidget.h
 
 FORMS += \
     mainwindow.ui

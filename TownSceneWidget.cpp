@@ -1,52 +1,29 @@
-#include "LabSceneWidget.h"
-#include "SolidBarrier.h"
-#include "NPCBarrier.h"
-#include "Ledge.h"
+#include "TownSceneWidget.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
 
-LabSceneWidget::LabSceneWidget(QWidget *parent) : QWidget(parent) {
+TownSceneWidget::TownSceneWidget(QWidget *parent) : QWidget(parent) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
-    background.load(":/scene/data/scene/lab.png");
+    background.load(":/scene/data/scene/Town.png");
     mapWidth = background.width();
     mapHeight = background.height();
 
-    player = new Player(215, 205); // 初始位置
-    addLabBarrier();//障礙物
-    exitZone = QRect(195, 430, 30, 20); //出口
+    player = new Player(670, 700); // Town 中央起始
+    addTownBarrier();
 
     posLabel = new QLabel(this);
     posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
     posLabel->setGeometry(10, 10, 200, 20);
 }
 
-void LabSceneWidget::addLabBarrier()
-{
-    // barriers.append(new SolidBarrier(50, 50, 100, 50));  // 放置牆壁
-    barriers.append(new NPCBarrier(
-        175, 135, 35, 48,
-        {"I am Professor Oak. Welcome to my laboratory!",
-         "You can choose one from three Poké Balls \nas your initial Pokémon in Laboratory."},
-        ":/other/data/NPC.png"
-    ));
-    barriers.append(new SolidBarrier(0, 10, 425, 60));      //上方書架
-    barriers.append(new SolidBarrier(280, 245, 145, 65));   //右邊書架
-    barriers.append(new SolidBarrier(0, 245, 175, 65));     //左邊書架
-    barriers.append(new SolidBarrier(0, 90, 30, 65));       //左邊兩台電腦
-    barriers.append(new SolidBarrier(30, 105, 75, 85));     //傳送器
-    barriers.append(new SolidBarrier(415, 380, 35, 60));    //右下花瓶
-    barriers.append(new SolidBarrier(0, 380, 35, 60));      //左下花瓶
-    // barriers.append(new Ledge(300, 200, 100, 20, Ledge::DOWN)); // 放置 ledge
-}
-
-void LabSceneWidget::paintEvent(QPaintEvent *event) {
+void TownSceneWidget::paintEvent(QPaintEvent *event) {
     Q_UNUSED(event);
     QPainter painter(this);
 
-    painter.fillRect(rect(), Qt::black); // 填滿黑色背景
+    painter.fillRect(rect(), Qt::black); // 背景填黑
 
     // 計算圖片左上在視窗中的繪製位置，使玩家保持螢幕中央
     int playerScreenX = windowWidth / 2 - player->getRect().width() / 2;
@@ -55,7 +32,7 @@ void LabSceneWidget::paintEvent(QPaintEvent *event) {
     int bgX = player->getX() + player->getRect().width() / 2 - windowWidth / 2;
     int bgY = player->getY() + player->getRect().height() / 2 - windowHeight / 2;
 
-    // 計算圖片來源與目標繪製區域
+    // 計算來源區塊 (視窗大小) 與目標繪製位置
     QRect srcRect(
         std::max(0, bgX),
         std::max(0, bgY),
@@ -73,7 +50,7 @@ void LabSceneWidget::paintEvent(QPaintEvent *event) {
     // 繪製背景
     painter.drawPixmap(targetRect, background, srcRect);
 
-    // 繪製玩家在中央
+    // 畫玩家在中央
     QPixmap currentPixmap = player->getCurrentPixmap();
     if (!currentPixmap.isNull()) {
         painter.drawPixmap(playerScreenX, playerScreenY, currentPixmap.scaled(player->getRect().size()));
@@ -81,18 +58,25 @@ void LabSceneWidget::paintEvent(QPaintEvent *event) {
         painter.fillRect(playerScreenX, playerScreenY, player->getRect().width(), player->getRect().height(), Qt::red);
     }
 
-    // 繪製 NPC
+    painter.setBrush(QColor(255, 0, 0, 100)); // 半透明紅色
+    for (const Barrier* barrier : barriers) {
+        int drawX = barrier->getRect().x() - bgX;
+        int drawY = barrier->getRect().y() - bgY;
+        painter.drawRect(drawX, drawY, barrier->getRect().width(), barrier->getRect().height());
+    }
+
     for (const Barrier* barrier : barriers) {
         const NPCBarrier* npc = dynamic_cast<const NPCBarrier*>(barrier);
         if (npc) {
             int drawX = npc->getRect().x() - bgX;
             int drawY = npc->getRect().y() - bgY;
-            npc->drawAt(&painter, drawX, drawY); // 需在 NPCBarrier 新增 drawAt()
+            npc->drawAt(&painter, drawX, drawY);
         }
     }
+
 }
 
-void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
+void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
     int step = 5;
     player->setWalking(true);
     int dx = 0, dy = 0;
@@ -103,34 +87,38 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
         player->setDirection(Player::RIGHT);
         dx = step;
     } else if (event->key() == Qt::Key_Up) {
+        // 出口區域 Town ➔ Grassland
+        QRect exitToGrassland(500, 0, 80, 20); // 根據 Town 地圖位置調整
+        if (exitToGrassland.intersects(player->getRect()) && event->key() == Qt::Key_Up) {
+            emit enterGrassland();
+            qDebug() << "go to grassLand";
+            return;
+        }
+        QRect exitToLab(670, 695, 30, 10); // 範例位置：下方中央，依實際地圖微調
+        if (exitToLab.intersects(player->getRect()) && event->key() == Qt::Key_Up) {
+            emit returnToLab();
+            return;
+        }
         player->setDirection(Player::UP);
         dy = -step;
     } else if (event->key() == Qt::Key_Down) {
-        if (exitZone.intersects(player->getRect()) && event->key() == Qt::Key_Down) {
-                emit enterTown();
-                return; // 避免繼續移動後執行 update
-            }
         player->setDirection(Player::DOWN);
         dy = step;
     }
-
     else if (event->key() == Qt::Key_A) { // 互動鍵
-        qDebug() << "Press A for interaction";
         for (Barrier* barrier : barriers) {
             NPCBarrier* npc = dynamic_cast<NPCBarrier*>(barrier);
             if (npc && npc->canInteract(player->getX(), player->getY())) {
-                qDebug() << "NPC interaction triggered";
-                npc->interact(this); // 傳入 LabSceneWidget 作為 parent
+                npc->interact(this);
                 break;
             }
         }
     }
-
     int nextX = player->getX() + dx;
     int nextY = player->getY() + dy;
     bool canMove = true;
 
-    // 執行 Barrier 碰撞判斷
+    // 檢查 Barrier 碰撞
     for (const Barrier* barrier : barriers) {
         if (!barrier->isPassable(nextX, nextY, player->getDirection())) {
             canMove = false;
@@ -138,22 +126,49 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
         }
     }
 
-    // 若無碰撞，執行移動
     if (canMove) {
         player->move(dx, dy, mapWidth, mapHeight);
     }
-    player->updateWalkFrame(); // 切換動畫幀
-    qDebug() << "Key pressed:" << event->key();
 
+    player->updateWalkFrame();
+    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    update();
+
+
+}
+
+void TownSceneWidget::keyReleaseEvent(QKeyEvent *event) {
+    Q_UNUSED(event);
+    player->setWalking(false);
     posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 
-void LabSceneWidget::keyReleaseEvent(QKeyEvent *event) {
-    Q_UNUSED(event);
-    player->setWalking(false);
+void TownSceneWidget::addTownBarrier()
+{
+    barriers.append(new SolidBarrier(295, 850, 170, 150)); //水池
+    // barriers.append(new SolidBarrier(750, 952, 250, 8)); //右下方樹叢
+    barriers.append(new SolidBarrier(915, 0, 85, 1000)); //右邊樹叢
+    barriers.append(new SolidBarrier(580, 0, 420, 95)); //右上樹叢
+    barriers.append(new SolidBarrier(0, 0, 500, 95)); //左上樹叢
+    barriers.append(new SolidBarrier(0, 0, 85, 1000)); //左邊樹叢
+    // barriers.append(new SolidBarrier(0, 952, 240, 8)); //左下方樹叢
+    barriers.append(new SolidBarrier(170, 332, 25, 70)); //信箱 1
+    barriers.append(new SolidBarrier(205, 172, 210, 230)); //房子 1
+    barriers.append(new SolidBarrier(545, 332, 25, 70)); //信箱 2
+    barriers.append(new SolidBarrier(580, 172, 210, 230)); //房子 2
+    barriers.append(new SolidBarrier(205, 550, 210, 40)); // 欄杆1
+    barriers.append(new SolidBarrier(540, 805, 245, 40)); // 欄杆2
+    barriers.append(new SolidBarrier(540, 470, 290, 225)); // 大房1
 
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
-    update();
+    barriers.append(new NPCBarrier(375, 550, 40, 40,
+        {"This is Pallet Town. Begin your adventure!"},""));
+    barriers.append(new NPCBarrier(205, 700, 40, 40,
+        {"This is Pallet Town. Begin your adventure!"},""));
+    barriers.append(new NPCBarrier(670, 805, 40, 40,
+        {"This is Pallet Town. Begin your adventure!"},""));
+
+
+
 }
 

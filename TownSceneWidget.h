@@ -2,17 +2,20 @@
 
 #include <QWidget>
 #include <QPixmap>
-#include <QTimer>
 #include <QLabel>
-#include "Player.h"
-#include "Barrier.h"
+#include <QVector>
 
-class LabSceneWidget : public QWidget {
+#include "Barrier.h"
+#include "SolidBarrier.h"
+#include "NPCBarrier.h"
+#include "Player.h"
+
+
+class TownSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LabSceneWidget(QWidget *parent = nullptr);
-
+    explicit TownSceneWidget(QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -20,20 +23,20 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
 
 signals:
-    void enterTown();
+    void enterGrassland();
+    void returnToLab();
 
 private:
     QPixmap background;
     Player *player;
+    QVector<Barrier*> barriers;
 
     const int windowWidth = 525;
     const int windowHeight = 450;
     int mapWidth;
     int mapHeight;
 
-    QVector<Barrier*> barriers;
     QLabel *posLabel;
-    QRect exitZone;
 
-    void addLabBarrier();
+    void addTownBarrier();
 };
