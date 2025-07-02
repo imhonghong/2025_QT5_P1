@@ -6,12 +6,15 @@
 
 #include "Player.h"
 #include "Barrier.h"
+#include "Bag.h"
+#include "BagWidget.h"
+
 
 class GrasslandSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit GrasslandSceneWidget(QWidget *parent = nullptr);
+    explicit GrasslandSceneWidget(Bag *bag, QWidget *parent = nullptr);
 
 signals:
     void returnToTown();
@@ -25,6 +28,9 @@ private:
     QPixmap background;
     Player *player;
     QVector<Barrier*> barriers;
+    Bag *bag;
+    BagWidget *bagWidget = nullptr;
+    bool canMove = true;
 
     const int windowWidth = 525;
     const int windowHeight = 450;

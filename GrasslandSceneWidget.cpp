@@ -7,7 +7,8 @@
 #include <QPainter>
 #include <QKeyEvent>
 
-GrasslandSceneWidget::GrasslandSceneWidget(QWidget *parent) : QWidget(parent) {
+GrasslandSceneWidget::GrasslandSceneWidget(Bag *bag, QWidget *parent)
+    : QWidget(parent), bag(bag) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -71,6 +72,18 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
     int step = 5;
     player->setWalking(true);
     int dx = 0, dy = 0;
+    if (!canMove) {
+        if (event->key() == Qt::Key_B) {
+            if (bagWidget && bagWidget->isVisible()) {
+                bagWidget->close();
+                bagWidget = nullptr;
+                canMove = true;
+                return;
+            }
+        }
+        return; // 禁止其他按鍵
+    }
+
     if (event->key() == Qt::Key_Left) {
         player->setDirection(Player::LEFT);
         dx = -step;
@@ -96,6 +109,17 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
                 npc->interact(this);
                 break;
             }
+        }
+    }
+    else if (event->key() == Qt::Key_B) {
+        if (bagWidget && bagWidget->isVisible()) {
+            bagWidget->close();
+            bagWidget = nullptr;
+            canMove = true;
+        } else {
+            bagWidget = new BagWidget(bag, this);
+            bagWidget->show();
+            canMove = false;
         }
     }
 

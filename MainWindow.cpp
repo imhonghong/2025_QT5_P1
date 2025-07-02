@@ -7,15 +7,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       stackedWidget(new QStackedWidget(this)),
-      titleScene(new TitleSceneWidget),
-      labScene(new LabSceneWidget),
-      grasslandScene(new GrasslandSceneWidget)
+      titleScene(new TitleSceneWidget)
 {
     setFixedSize(525, 450);
     setCentralWidget(stackedWidget);
 
     bag = new Bag();
+    labScene = new LabSceneWidget(bag);
     townScene = new TownSceneWidget(bag);
+    grasslandScene = new GrasslandSceneWidget(bag);
 
     stackedWidget->addWidget(titleScene);
     stackedWidget->addWidget(labScene);

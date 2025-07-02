@@ -6,12 +6,14 @@
 #include <QLabel>
 #include "Player.h"
 #include "Barrier.h"
+#include "Bag.h"
+#include "BagWidget.h"
 
 class LabSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LabSceneWidget(QWidget *parent = nullptr);
+    explicit LabSceneWidget(Bag *bag, QWidget *parent = nullptr);
 
 
 protected:
@@ -36,4 +38,8 @@ private:
     QRect exitZone;
 
     void addLabBarrier();
+
+    Bag *bag;
+    BagWidget *bagWidget = nullptr;
+    bool canMove = true;
 };

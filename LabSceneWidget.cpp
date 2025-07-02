@@ -7,7 +7,8 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-LabSceneWidget::LabSceneWidget(QWidget *parent) : QWidget(parent) {
+LabSceneWidget::LabSceneWidget(Bag *bag, QWidget *parent)
+    : QWidget(parent), bag(bag) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -125,21 +126,32 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
             }
         }
     }
+    else if (event->key() == Qt::Key_B) {
+        if (bagWidget && bagWidget->isVisible()) {
+            bagWidget->close();
+            bagWidget = nullptr;
+            canMove = true;
+        } else {
+            bagWidget = new BagWidget(bag, this);
+            bagWidget->show();
+            canMove = false;
+        }
+    }
 
     int nextX = player->getX() + dx;
     int nextY = player->getY() + dy;
-    bool canMove = true;
 
     // 執行 Barrier 碰撞判斷
+    bool blocked = false;
     for (const Barrier* barrier : barriers) {
         if (!barrier->isPassable(nextX, nextY, player->getDirection())) {
-            canMove = false;
+            blocked = true;
             break;
         }
     }
 
-    // 若無碰撞，執行移動
-    if (canMove) {
+    // 背包開啟時禁止移動
+    if (!blocked && canMove) {
         player->move(dx, dy, mapWidth, mapHeight);
     }
     player->updateWalkFrame(); // 切換動畫幀
