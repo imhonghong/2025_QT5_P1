@@ -43,4 +43,5 @@ private:
     QLabel *posLabel;
 
     void addTownBarrier();
+    void generateBoxes();
 };

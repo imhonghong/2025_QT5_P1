@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QRandomGenerator>
 
 TownSceneWidget::TownSceneWidget(Bag *bag, QWidget *parent) : QWidget(parent), bag(bag) {
     setFixedSize(windowWidth, windowHeight);
@@ -15,6 +16,7 @@ TownSceneWidget::TownSceneWidget(Bag *bag, QWidget *parent) : QWidget(parent), b
 
     player = new Player(670, 700); // Town 中央起始
     addTownBarrier();
+    generateBoxes();
 
     posLabel = new QLabel(this);
     posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
@@ -62,13 +64,15 @@ void TownSceneWidget::paintEvent(QPaintEvent *event) {
         painter.fillRect(playerScreenX, playerScreenY, player->getRect().width(), player->getRect().height(), Qt::red);
     }
 
-    painter.setBrush(QColor(255, 0, 0, 100)); // 半透明紅色
     for (const Barrier* barrier : barriers) {
-        int drawX = barrier->getRect().x() - bgX;
-        int drawY = barrier->getRect().y() - bgY;
-        painter.drawRect(drawX, drawY, barrier->getRect().width(), barrier->getRect().height());
+        // 顯示 Box
+        if (auto box = dynamic_cast<const BoxBarrier*>(barrier)) {
+            int drawX = box->getRect().x() - bgX;
+            int drawY = box->getRect().y() - bgY;
+            box->drawAt(&painter, drawX, drawY);
+        }
     }
-
+    /*
     for (const Barrier* barrier : barriers) {
         const NPCBarrier* npc = dynamic_cast<const NPCBarrier*>(barrier);
         if (npc) {
@@ -76,7 +80,7 @@ void TownSceneWidget::paintEvent(QPaintEvent *event) {
             int drawY = npc->getRect().y() - bgY;
             npc->drawAt(&painter, drawX, drawY);
         }
-    }
+    }*/
 
 }
 
@@ -201,11 +205,78 @@ void TownSceneWidget::addTownBarrier()
         {"This is Pallet Town. Begin your adventure!"},""));
     barriers.append(new NPCBarrier(670, 805, 40, 40,
         {"This is Pallet Town. Begin your adventure!"},""));
-
-    barriers.append(new BoxBarrier(
-        600, 700, 35, 35,
-        "Potion", 1,
-        ":/item/data/item/box.png"
-    ));
 }
 
+void TownSceneWidget::generateBoxes() {
+    const int boxCount = 15;
+    const int boxSize = 35;
+    const int maxAttemptsPerBox = 100; // 避免無限迴圈
+
+    int pokeballCount = 0;
+
+    for (int i = 0; i < boxCount; ++i) {
+        QRect newBoxRect;
+        bool overlap;
+        int attempts = 0;
+
+        do {
+            overlap = false;
+            int x = QRandomGenerator::global()->bounded(0, mapWidth - boxSize);
+            int y = QRandomGenerator::global()->bounded(0, mapHeight - boxSize);
+            newBoxRect = QRect(x, y, boxSize, boxSize);
+
+            // 與現有 barriers 比對是否重疊
+            for (const Barrier* barrier : barriers) {
+                if (barrier->getRect().intersects(newBoxRect)) {
+                    overlap = true;
+                    break;
+                }
+            }
+
+            attempts++;
+            if (attempts > maxAttemptsPerBox) {
+                qDebug() << "Box placement skipped due to too many overlaps.";
+                break;
+            }
+
+        } while (overlap);
+
+        if (attempts > maxAttemptsPerBox) {
+            continue; // 放棄此次 Box
+        }
+
+        // 隨機產生道具
+        QString itemName;
+        if (pokeballCount < 3) {
+            int itemChoice = QRandomGenerator::global()->bounded(0, 3);
+            if (itemChoice == 0) {
+                itemName = "Poké Ball";
+                pokeballCount++;
+            } else if (itemChoice == 1) {
+                itemName = "Potion";
+            } else {
+                itemName = "Ether";
+            }
+        } else {
+            int itemChoice = QRandomGenerator::global()->bounded(0, 2);
+            if (itemChoice == 0) {
+                itemName = "Potion";
+            } else {
+                itemName = "Ether";
+            }
+        }
+
+        // 建立 BoxBarrier 並加入 barriers
+        barriers.append(new BoxBarrier(
+            newBoxRect.x(),
+            newBoxRect.y(),
+            boxSize,
+            boxSize,
+            itemName,
+            1,
+            ":/other/data/box.png"
+        ));
+    }
+
+    qDebug() << "Finished generating boxes. Poké Balls:" << pokeballCount;
+}
