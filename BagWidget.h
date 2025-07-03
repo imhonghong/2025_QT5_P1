@@ -1,18 +1,27 @@
 #pragma once
 
 #include <QWidget>
-#include <QVBoxLayout>
 #include <QLabel>
+#include <QVector>
 #include "Bag.h"
+#include "PokemonCollection.h"
 
 class BagWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit BagWidget(Bag *bag, QWidget *parent = nullptr);
+    BagWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent = nullptr);
 
 private:
     Bag *bag;
-    QVBoxLayout *layout;
-    void updateDisplay();
+    PokemonCollection *pokemonCollection;
+
+    QLabel *backgroundItem;
+    QLabel *backgroundPokemon;
+    QVector<QLabel*> itemIcons;
+    QVector<QLabel*> itemCounts;
+    QVector<QLabel*> pokemonLabels;
+    QVector<QLabel*> pokemonIcons;
+
+    void setupDisplay();
 };

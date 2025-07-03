@@ -6,7 +6,8 @@
 #include <QDebug>
 #include <QRandomGenerator>
 
-TownSceneWidget::TownSceneWidget(Bag *bag, QWidget *parent) : QWidget(parent), bag(bag) {
+TownSceneWidget::TownSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent)
+    : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -148,7 +149,7 @@ void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
             bagWidget = nullptr;
             canMove = true;
         } else {
-            bagWidget = new BagWidget(bag, this);
+            bagWidget = new BagWidget(bag, pokemonCollection, this);
             bagWidget->show();
             canMove = false; // 禁止移動
         }

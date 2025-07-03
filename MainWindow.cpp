@@ -13,16 +13,21 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(stackedWidget);
 
     bag = new Bag();
-    labScene = new LabSceneWidget(bag);
-    townScene = new TownSceneWidget(bag);
-    grasslandScene = new GrasslandSceneWidget(bag);
+    pokemonCollection = new PokemonCollection();
+
+    labScene = new LabSceneWidget(bag, pokemonCollection);
+    townScene = new TownSceneWidget(bag, pokemonCollection);
+    grasslandScene = new GrasslandSceneWidget(bag, pokemonCollection);
 
     stackedWidget->addWidget(titleScene);
     stackedWidget->addWidget(labScene);
     stackedWidget->addWidget(townScene);
     stackedWidget->addWidget(grasslandScene);
     stackedWidget->setCurrentWidget(titleScene);
+
+
     setupConnections();
+
 }
 
 MainWindow::~MainWindow() {}

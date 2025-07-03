@@ -11,12 +11,13 @@
 #include "Player.h"
 #include "Bag.h"
 #include "BagWidget.h"
+#include "PokemonCollection.h"
 
 class TownSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit TownSceneWidget(Bag *bag, QWidget *parent = nullptr);
+    explicit TownSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -32,6 +33,8 @@ private:
     Player *player;
     QVector<Barrier*> barriers;
     Bag* bag;
+    PokemonCollection *pokemonCollection;
+
     BagWidget *bagWidget = nullptr;
     bool canMove = true;
 

@@ -17,6 +17,7 @@ SOURCES += \
     LabSceneWidget.cpp \
     NPCBarrier.cpp \
     Player.cpp \
+    PokemonCollection.cpp \
     TitleSceneWidget.cpp \
     TownSceneWidget.cpp \
     main.cpp \
@@ -34,6 +35,8 @@ HEADERS += \
     MainWindow.h \
     NPCBarrier.h \
     Player.h \
+    Pokemon.h \
+    PokemonCollection.h \
     SolidBarrier.h \
     TitleSceneWidget.h \
     TownSceneWidget.h

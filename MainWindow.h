@@ -4,6 +4,7 @@
 #include <QStackedWidget>
 
 #include "Bag.h"
+#include "PokemonCollection.h"
 
 class TitleSceneWidget;
 class LabSceneWidget;
@@ -24,6 +25,7 @@ private:
     LabSceneWidget *labScene;
     TownSceneWidget *townScene;
     GrasslandSceneWidget *grasslandScene;
+    PokemonCollection *pokemonCollection;
 
     void setupConnections();
 

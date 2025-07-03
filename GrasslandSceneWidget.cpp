@@ -3,12 +3,11 @@
 #include "NPCBarrier.h"
 #include "SolidBarrier.h"
 #include "Ledge.h"
-
 #include <QPainter>
 #include <QKeyEvent>
 
-GrasslandSceneWidget::GrasslandSceneWidget(Bag *bag, QWidget *parent)
-    : QWidget(parent), bag(bag) {
+GrasslandSceneWidget::GrasslandSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent)
+    : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -117,7 +116,7 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
             bagWidget = nullptr;
             canMove = true;
         } else {
-            bagWidget = new BagWidget(bag, this);
+            bagWidget = new BagWidget(bag, pokemonCollection, this);
             bagWidget->show();
             canMove = false;
         }

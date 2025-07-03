@@ -13,7 +13,7 @@ class LabSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LabSceneWidget(Bag *bag, QWidget *parent = nullptr);
+    explicit LabSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent = nullptr);
 
 
 protected:
@@ -41,5 +41,7 @@ private:
 
     Bag *bag;
     BagWidget *bagWidget = nullptr;
+    PokemonCollection *pokemonCollection;
+
     bool canMove = true;
 };

@@ -1,58 +1,76 @@
 #include "BagWidget.h"
+#include <QPixmap>
 #include <QLabel>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
 
-BagWidget::BagWidget(Bag *bag, QWidget *parent)
-    : QWidget(parent), bag(bag) {
+BagWidget::BagWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent)
+    : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::SubWindow);
+    setAttribute(Qt::WA_NoSystemBackground, true);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+    setupDisplay();
+}
 
-    setFixedSize(400, 500);
-    setWindowTitle("Bag");
+void BagWidget::setupDisplay() {
+    // 顯示上半背景
+    backgroundItem = new QLabel(this);
+    backgroundItem->setPixmap(QPixmap(":/other/data/item_bag_background.png"));
+    backgroundItem->setGeometry(0, 0, 150, 40);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0, 0, 0, 0);
-    mainLayout->setSpacing(0);
+    // 顯示下半背景
+    backgroundPokemon = new QLabel(this);
+    backgroundPokemon->setPixmap(QPixmap(":/other/data/bag.png"));
+    backgroundPokemon->setGeometry(0, 40, 150, 150);
 
-    // 上半部分 Item 背景
-    QLabel *itemBackground = new QLabel(this);
-    itemBackground->setPixmap(QPixmap(":/other/data/item_bag_background.png"));
+    // ======== 上半：顯示道具 ========
+    struct ItemDisplay {
+        QString name;
+        QString iconPath;
+        QPoint position;
+    };
 
-    QVBoxLayout *itemLayout = new QVBoxLayout(itemBackground);
-    itemLayout->setAlignment(Qt::AlignTop);
+    QVector<ItemDisplay> itemsToShow = {
+        {"Poké Ball", ":/icon/data/icon/Pokeball_bag.png", QPoint(10, 10)},
+        {"Potion",    ":/icon/data/icon/Potion_bag.png",   QPoint(60, 10)},
+        {"Ether",     ":/icon/data/icon/Ether_bag.png",    QPoint(105, 11)}
+    };
 
-    auto items = bag->getAllItems();
-    if (items.isEmpty()) {
-        QLabel *emptyLabel = new QLabel("No items in your bag.", this);
-        emptyLabel->setStyleSheet("color: white; font-size: 16px;");
-        itemLayout->addWidget(emptyLabel);
-    } else {
-        for (auto it = items.begin(); it != items.end(); ++it) {
-            QHBoxLayout *itemLine = new QHBoxLayout();
+    for (const auto& item : itemsToShow) {
+        QLabel *iconLabel = new QLabel(this);
+        iconLabel->setPixmap(QPixmap(item.iconPath).scaled(20, 20));
+        iconLabel->move(item.position);
 
-            QLabel *iconLabel = new QLabel(this);
-            if (it.key().contains("Poké Ball", Qt::CaseInsensitive)) {
-                iconLabel->setPixmap(QPixmap(":/icon/data/icon/Pokeball_bag.png").scaled(32, 32));
-            } else if (it.key().contains("Potion", Qt::CaseInsensitive)) {
-                iconLabel->setPixmap(QPixmap(":/icon/data/icon/Potion_bag.png").scaled(32, 32));
-            } else if (it.key().contains("Ether", Qt::CaseInsensitive)) {
-                iconLabel->setPixmap(QPixmap(":/icon/data/icon/Ether_bag.png").scaled(32, 32));
-            } else {
-                iconLabel->setPixmap(QPixmap(":/item/data/item/default_icon.png").scaled(32, 32));
-            }
+        QLabel *countLabel = new QLabel(this);
+        countLabel->setStyleSheet("color: black; font-weight: bold; font-size: 14px;");
+        countLabel->setFixedSize(40, 20);
+        countLabel->move(item.position + QPoint(20, 0)); // 微調位置
 
-            QLabel *textLabel = new QLabel(QString("%1 x%2").arg(it.key()).arg(it.value()), this);
-            textLabel->setStyleSheet("color: white; font-size: 14px;");
+        int count = bag->getItemCount(item.name);
+        countLabel->setText(QString("x%1").arg(count));
 
-            itemLine->addWidget(iconLabel);
-            itemLine->addWidget(textLabel);
-            itemLayout->addLayout(itemLine);
-        }
+        itemIcons.append(iconLabel);
+        itemCounts.append(countLabel);
     }
 
-    mainLayout->addWidget(itemBackground);
+    // ======== 下半：顯示擁有 Pokémon ========
+    QVector<Pokemon*> pokemons = pokemonCollection->getAllPokemons();
+    int startY = 45;
+    int spacingY = 36;
+    int iconOffsetX = 115;
 
-    // 下半部分 Pokémon 背景（佔位）
-    QLabel *pokemonBackground = new QLabel(this);
-    pokemonBackground->setPixmap(QPixmap(":/other/data/bag.png"));
-    mainLayout->addWidget(pokemonBackground);
+    for (int i = 0; i < pokemons.size(); ++i) {
+        Pokemon *pokemon = pokemons[i];
+
+        QLabel *nameLabel = new QLabel(this);
+        nameLabel->setText(pokemon->getName());
+        nameLabel->setStyleSheet("color: black; font-weight: bold; font-size: 16px;");
+        nameLabel->move(15, startY + i * spacingY);
+        nameLabel->setFixedSize(150, 32);
+
+        QLabel *iconLabel = new QLabel(this);
+        iconLabel->setPixmap(QPixmap(pokemon->getIconPath()).scaled(32, 32));
+        iconLabel->move(iconOffsetX, startY + i * spacingY);
+
+        pokemonLabels.append(nameLabel);
+        pokemonIcons.append(iconLabel);
+    }
 }

@@ -1,14 +1,14 @@
-
 #include "LabSceneWidget.h"
 #include "SolidBarrier.h"
 #include "NPCBarrier.h"
 #include "Ledge.h"
+#include "PokemonCollection.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
 
-LabSceneWidget::LabSceneWidget(Bag *bag, QWidget *parent)
-    : QWidget(parent), bag(bag) {
+LabSceneWidget::LabSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent)
+    : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
 
@@ -132,7 +132,10 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
             bagWidget = nullptr;
             canMove = true;
         } else {
-            bagWidget = new BagWidget(bag, this);
+            bagWidget = new BagWidget(bag, pokemonCollection, this);
+            int x = (this->width() - bagWidget->width()) / 2;
+            int y = (this->height() - bagWidget->height()) / 2;
+            bagWidget->move(std::max(0, x), std::max(0, y));
             bagWidget->show();
             canMove = false;
         }

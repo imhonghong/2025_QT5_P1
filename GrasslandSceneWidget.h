@@ -8,13 +8,15 @@
 #include "Barrier.h"
 #include "Bag.h"
 #include "BagWidget.h"
+#include "PokemonCollection.h"
 
 
 class GrasslandSceneWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit GrasslandSceneWidget(Bag *bag, QWidget *parent = nullptr);
+    explicit GrasslandSceneWidget(Bag *bag,
+             PokemonCollection *pokemonCollection, QWidget *parent = nullptr);
 
 signals:
     void returnToTown();
@@ -29,6 +31,8 @@ private:
     Player *player;
     QVector<Barrier*> barriers;
     Bag *bag;
+    PokemonCollection *pokemonCollection;
+
     BagWidget *bagWidget = nullptr;
     bool canMove = true;
 
