@@ -84,6 +84,24 @@ void LabSceneWidget::paintEvent(QPaintEvent *event) {
         painter.fillRect(playerScreenX, playerScreenY, player->getRect().width(), player->getRect().height(), Qt::red);
     }
 
+    // 顯示三顆 Poké Ball
+    QPixmap ballPixmap(":/other/data/ball.png");
+    int ballWidth = 21;
+    int ballHeight = 30;
+
+    // 實際位置（地圖絕對座標）
+    QPoint ballPositions[3] = {
+        QPoint(290, 140),
+        QPoint(320, 140),
+        QPoint(350, 140)
+    };
+
+    for (const QPoint &pos : ballPositions) {
+        int drawX = pos.x() - bgX;
+        int drawY = pos.y() - bgY;
+        painter.drawPixmap(drawX, drawY, ballWidth, ballHeight, ballPixmap);
+    }
+
     // 繪製 NPC
     for (const Barrier* barrier : barriers) {
         const NPCBarrier* npc = dynamic_cast<const NPCBarrier*>(barrier);

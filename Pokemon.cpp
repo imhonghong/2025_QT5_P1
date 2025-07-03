@@ -41,9 +41,9 @@ QVector<Move*> Pokemon::getMoves() const {
     return moves;
 }
 
-QString Pokemon::getImagePath(bool useBack) const {
-    if (useBack)
-        return backImagePath;
-    else
+QString Pokemon::getImagePath(bool useFront) const {
+    if (useFront)
         return frontImagePath;
+    else
+        return backImagePath;
 }

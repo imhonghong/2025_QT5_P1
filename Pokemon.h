@@ -36,7 +36,7 @@ private:
     int maxHp;
     int attack;
     int defense;
-    bool useBack;
+    bool useFront;
     QVector<Move*> moves;
 
     QString frontImagePath;
