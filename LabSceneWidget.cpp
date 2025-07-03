@@ -1,8 +1,8 @@
 #include "LabSceneWidget.h"
 #include "SolidBarrier.h"
 #include "NPCBarrier.h"
-#include "Ledge.h"
 #include "PokemonCollection.h"
+#include "LabTableBarrier.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QDebug>
@@ -41,6 +41,8 @@ void LabSceneWidget::addLabBarrier()
     barriers.append(new SolidBarrier(30, 105, 75, 85));     //傳送器
     barriers.append(new SolidBarrier(415, 380, 35, 60));    //右下花瓶
     barriers.append(new SolidBarrier(0, 380, 35, 60));      //左下花瓶
+
+    barriers.append(new LabTableBarrier(280, 130, 100, 50));
 }
 
 void LabSceneWidget::paintEvent(QPaintEvent *event) {
@@ -123,6 +125,13 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
                 qDebug() << "NPC interaction triggered";
                 npc->interact(this); // 傳入 LabSceneWidget 作為 parent
                 break;
+            }
+            // LabTable 互動
+            else if (auto table = dynamic_cast<LabTableBarrier*>(barrier)) {
+                if (table->canInteract(player->getX(), player->getY())) {
+                    table->interactWithPlayer(this, pokemonCollection);
+                    break;
+                }
             }
         }
     }

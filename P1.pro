@@ -12,11 +12,15 @@ SOURCES += \
     Bag.cpp \
     BagWidget.cpp \
     BoxBarrier.cpp \
+    ChoosePokemonWidget.cpp \
     DialogWidget.cpp \
     GrasslandSceneWidget.cpp \
     LabSceneWidget.cpp \
+    LabTableBarrier.cpp \
+    Move.cpp \
     NPCBarrier.cpp \
     Player.cpp \
+    Pokemon.cpp \
     PokemonCollection.cpp \
     TitleSceneWidget.cpp \
     TownSceneWidget.cpp \
@@ -28,11 +32,14 @@ HEADERS += \
     BagWidget.h \
     Barrier.h \
     BoxBarrier.h \
+    ChoosePokemonWidget.h \
     DialogWidget.h \
     GrasslandSceneWidget.h \
     LabSceneWidget.h \
+    LabTableBarrier.h \
     Ledge.h \
     MainWindow.h \
+    Move.h \
     NPCBarrier.h \
     Player.h \
     Pokemon.h \

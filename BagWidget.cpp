@@ -67,7 +67,7 @@ void BagWidget::setupDisplay() {
         nameLabel->setFixedSize(150, 32);
 
         QLabel *iconLabel = new QLabel(this);
-        iconLabel->setPixmap(QPixmap(pokemon->getIconPath()).scaled(32, 32));
+        iconLabel->setPixmap(QPixmap(pokemon->getImagePath(false)).scaled(32, 32));
         iconLabel->move(iconOffsetX, startY + i * spacingY);
 
         pokemonLabels.append(nameLabel);
