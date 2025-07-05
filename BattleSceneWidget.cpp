@@ -25,140 +25,14 @@ BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonColl
 void BattleSceneWidget::setupUI() {
     setFixedSize(525, 450);
 
-    // 背景
-    backgroundLabel = new QLabel(this);
-    backgroundLabel->setPixmap(QPixmap(":/battle/data/battle/battle_scene.png").scaled(size()));
-    backgroundLabel->setGeometry(0, 0, 525, 450);
-
-    // 玩家寶可夢圖
-    playerPokemonLabel = new QLabel(this);
-    playerPokemonLabel->setPixmap(QPixmap(playerPokemon->getImagePath(false)).scaled(120, 120));
-    playerPokemonLabel->move(50, 180);
-
-    // 野生寶可夢圖
-    wildPokemonLabel = new QLabel(this);
-    wildPokemonLabel->setPixmap(QPixmap(wildPokemon->getImagePath(true)).scaled(120, 120));
-    wildPokemonLabel->move(340, 60);
-
-    // 訊息顯示
-    messageLabel = new QLabel(this);
-    messageLabel->setStyleSheet("color: white; font-weight: bold;");
-    messageLabel->setGeometry(36, 350, 400, 60);
-
-    // 玩家寶可夢資訊
-    playerNameLabel = new QLabel(playerPokemon->getName(), this);
-    playerNameLabel->setStyleSheet("color: black; font-weight: bold;");
-    playerNameLabel->move(320, 230);
-
-    playerLevelLabel = new QLabel(QString("Lv:%1").arg(playerPokemon->getLevel()), this);
-    playerLevelLabel->setStyleSheet("color: black; font-weight: bold;");
-    playerLevelLabel->move(430, 230);
-
-    playerHpLabel = new QLabel(QString("HP: %1/%2").arg(playerPokemon->getHp()).arg(playerPokemon->getMaxHp()), this);
-    playerHpLabel->setStyleSheet("color: black; font-weight: bold;");
-    playerHpLabel->move(400, 276);
-
-    playerHpBar = new QProgressBar(this);
-    playerHpBar->setGeometry(382, 259, 108, 10);
-    playerHpBar->setRange(0, playerPokemon->getMaxHp());
-    playerHpBar->setValue(playerPokemon->getHp());
-    playerHpBar->setTextVisible(false);
-    playerHpBar->setStyleSheet("QProgressBar::chunk { background-color: green; }");
-
-    // 野生寶可夢資訊
-    wildNameLabel = new QLabel(wildPokemon->getName(), this);
-    wildNameLabel->setStyleSheet("color: black; font-weight: bold;");
-    wildNameLabel->move(50, 60);
-
-    wildLevelLabel = new QLabel(QString("Lv:%1").arg(wildPokemon->getLevel()), this);
-    wildLevelLabel->setStyleSheet("color: black; font-weight: bold;");
-    wildLevelLabel->move(160, 60);
-
-    wildHpBar = new QProgressBar(this);
-    wildHpBar->setGeometry(112, 92, 108, 10);
-    wildHpBar->setRange(0, wildPokemon->getMaxHp());
-    wildHpBar->setValue(wildPokemon->getHp());
-    wildHpBar->setTextVisible(false);
-    wildHpBar->setStyleSheet("QProgressBar::chunk { background-color: green; }");
-
-    // Action Menu 四宮格按鈕
-    actionMenu = new QWidget(this);
-    actionMenu->setGeometry(281, 337, 228, 92);
-    actionMenu->setStyleSheet("background: transparent;");
-    QGridLayout *actionLayout = new QGridLayout(actionMenu);
-    actionLayout->setSpacing(5);
-    actionLayout->setContentsMargins(0,0,0,0);
-
-    fightButton = new QPushButton("Fight", actionMenu);
-    bagButton = new QPushButton("Bag", actionMenu);
-    pokemonButton = new QPushButton("Pokémon", actionMenu);
-    runButton = new QPushButton("Run", actionMenu);
-
-    fightButton->setFocusPolicy(Qt::StrongFocus);
-    bagButton->setFocusPolicy(Qt::StrongFocus);
-    pokemonButton->setFocusPolicy(Qt::StrongFocus);
-    runButton->setFocusPolicy(Qt::StrongFocus);
-
-    fightButton->setStyleSheet(buttonStyle);
-    bagButton->setStyleSheet(buttonStyle);
-    pokemonButton->setStyleSheet(buttonStyle);
-    runButton->setStyleSheet(buttonStyle);
-
-    actionLayout->addWidget(fightButton, 0, 0);
-    actionLayout->addWidget(bagButton, 0, 1);
-    actionLayout->addWidget(pokemonButton, 1, 0);
-    actionLayout->addWidget(runButton, 1, 1);
-
-    connect(fightButton, &QPushButton::clicked, this, &BattleSceneWidget::onFightClicked);
-    connect(bagButton, &QPushButton::clicked, this, &BattleSceneWidget::onBagClicked);
-    connect(pokemonButton, &QPushButton::clicked, this, &BattleSceneWidget::onPokemonClicked);
-    connect(runButton, &QPushButton::clicked, this, &BattleSceneWidget::onRunClicked);
-
-    actionButtons.append(fightButton);
-    actionButtons.append(bagButton);
-    actionButtons.append(pokemonButton);
-    actionButtons.append(runButton);
-    actionButtons[selectedActionIndex]->setFocus();
-
-    // Fight Menu 區域（背景 + GridLayout + 獨立 Label）
-    fightMenu = new QWidget(this);
-    fightMenu->setGeometry(0, 317, 525, 133);
-    fightMenu->hide();
-
-    fightMenuBackground = new QLabel(fightMenu);
-    fightMenuBackground->setPixmap(QPixmap(":/battle/data/battle/fight_skill.png").scaled(525, 133));
-    fightMenuBackground->setGeometry(0, 0, 525, 133);
-    fightMenuBackground->lower();
-
-    QGridLayout *gridLayout = new QGridLayout(fightMenu);
-    gridLayout->setContentsMargins(15, 16, 190, 16);
-    gridLayout->setSpacing(5);
-
-    QVector<Move*> moves = playerPokemon->getMoves();
-    for (int i = 0; i < 4; ++i) {
-        QPushButton *skillButton;
-        if (i < moves.size()) {
-            Move *move = moves[i];
-            skillButton = new QPushButton(move->getName(), fightMenu);
-            connect(skillButton, &QPushButton::clicked, this, &BattleSceneWidget::onSkillClicked);
-        } else {
-            skillButton = new QPushButton("No Skill", fightMenu);
-            skillButton->setEnabled(false); // 禁用按鈕，無法攻擊
-        }
-        skillButton->setFocusPolicy(Qt::StrongFocus);
-        skillButton->setStyleSheet(buttonStyle);
-        gridLayout->addWidget(skillButton, i / 2, i % 2);
-        skillButtons.append(skillButton);
-    }
-
-    skillPPLabel = new QLabel("--/--", fightMenu);
-    skillPPLabel->setStyleSheet("color: black; font-weight: bold; font-size: 20px");
-    skillPPLabel->move(440, 35);
-
-    skillPowerLabel = new QLabel("--", fightMenu);
-    skillPowerLabel->setStyleSheet("color: black; font-weight: bold; font-size: 20px");
-    skillPowerLabel->move(440, 80);
-
+    set_background();       // 背景
+    set_playerPokemon();    // 玩家寶可夢圖和資訊
+    set_wildPokemon();      // 野生寶可夢圖和資訊
+    set_messageLabel();     // 訊息顯示
+    set_actionMenu();       // Action Menu 四宮格按鈕
+    set_fightMenu();        // Fight Menu 區域（背景 + GridLayout + 獨立 Label）
+    set_battleBag();        // Bag 顯示 Label
+    set_etherMenu();        // Ether Menu
 
 }
 
@@ -178,6 +52,7 @@ void BattleSceneWidget::updateInfo() {
 
 void BattleSceneWidget::onFightClicked() {
     fightMenu->show();
+    backButton_fight->show();
     selectedSkillIndex = 0;
     skillButtons[selectedSkillIndex]->setFocus();
 
@@ -230,7 +105,13 @@ void BattleSceneWidget::onSkillClicked() {
 }
 
 void BattleSceneWidget::onBagClicked() {
-    messageLabel->setText("Bag is not yet implemented here.");
+    messageLabel->setText("Choose an item to use:");
+    for (auto btn : actionButtons) {
+        btn->hide();
+    }
+
+
+    showBagMenu();
 }
 
 void BattleSceneWidget::onPokemonClicked() {
@@ -383,4 +264,343 @@ void BattleSceneWidget::processEnemyTurn() {
     });
 }
 
+void BattleSceneWidget::showBagMenu() {
+    QString info = QString("Potion: x%1    Ether: x%2    Poké Ball: x%3")
+                       .arg(bag->getItemCount("Potion"))
+                       .arg(bag->getItemCount("Ether"))
+                       .arg(bag->getItemCount("Poké Ball"));
 
+    bagOverlayLabel->setText("Choose an item to use:\nPotion, Ether, or Poké Ball");
+    bagOverlayLabel->show();
+    bagItemLabel->setText(info);
+    bagItemLabel->show();
+    potionButton->show();
+    etherButton->show();
+    pokeballButton->show();
+    backButton_bag ->show();
+
+    // 按鈕禁用處理
+    potionButton->setEnabled(bag->getItemCount("Potion") > 0);
+    etherButton->setEnabled(bag->getItemCount("Ether") > 0);
+    pokeballButton->setEnabled(bag->getItemCount("Poké Ball") > 0);
+
+    for (auto btn : actionButtons) {
+        btn->setEnabled(false);
+    }
+}
+
+
+void BattleSceneWidget::hideBagMenu() {
+    bagItemLabel->hide();
+    potionButton->hide();
+    etherButton->hide();
+    pokeballButton->hide();
+    backButton_bag ->hide();
+
+    for (auto btn : actionButtons) {
+        btn->setEnabled(true);
+        btn->show();
+    }
+    bagOverlayLabel->hide();
+}
+
+void BattleSceneWidget::showEtherMenu() {
+    etherMenu->show();
+    backButton_ether->show();
+    for (int i = 0; i < 4; ++i) {
+        QVector<Move*> moves = playerPokemon->getMoves();
+        if (i < moves.size()) {
+            Move *move = moves[i];
+            etherSkillButtons[i]->setText(move->getName() + QString(" (%1/%2)").arg(move->getCurrentPp()).arg(move->getMaxPp()));
+            etherSkillButtons[i]->setEnabled(true);
+        } else {
+            etherSkillButtons[i]->setText("No Skill");
+            etherSkillButtons[i]->setEnabled(false);
+        }
+        etherSkillButtons[i]->show();
+    }
+}
+
+void BattleSceneWidget::hideEtherMenu() {
+    etherMenu->hide();
+    backButton_ether->hide();
+    for (int i = 0; i < 4; ++i) {
+        etherSkillButtons[i]->hide();
+    }
+    hideBagMenu(); // 回到Bag關閉流程
+}
+
+void BattleSceneWidget::set_background(){
+    backgroundLabel = new QLabel(this);
+    backgroundLabel->setPixmap(QPixmap(":/battle/data/battle/battle_scene.png").scaled(size()));
+    backgroundLabel->setGeometry(0, 0, 525, 450);
+}
+
+void BattleSceneWidget::set_playerPokemon(){
+    playerPokemonLabel = new QLabel(this);
+    playerPokemonLabel->setPixmap(QPixmap(playerPokemon->getImagePath(false)).scaled(120, 120));
+    playerPokemonLabel->move(50, 180);
+
+    // 玩家寶可夢資訊
+    playerNameLabel = new QLabel(playerPokemon->getName(), this);
+    playerNameLabel->setStyleSheet("color: black; font-weight: bold;");
+    playerNameLabel->move(320, 230);
+
+    playerLevelLabel = new QLabel(QString("Lv:%1").arg(playerPokemon->getLevel()), this);
+    playerLevelLabel->setStyleSheet("color: black; font-weight: bold;");
+    playerLevelLabel->move(430, 230);
+
+    playerHpLabel = new QLabel(QString("HP: %1/%2").arg(playerPokemon->getHp()).arg(playerPokemon->getMaxHp()), this);
+    playerHpLabel->setStyleSheet("color: black; font-weight: bold;");
+    playerHpLabel->move(400, 276);
+
+    playerHpBar = new QProgressBar(this);
+    playerHpBar->setGeometry(382, 259, 108, 10);
+    playerHpBar->setRange(0, playerPokemon->getMaxHp());
+    playerHpBar->setValue(playerPokemon->getHp());
+    playerHpBar->setTextVisible(false);
+    playerHpBar->setStyleSheet("QProgressBar::chunk { background-color: green; }");
+
+}
+
+void BattleSceneWidget::set_wildPokemon(){
+
+    // 野生寶可夢圖片
+    wildPokemonLabel = new QLabel(this);
+    wildPokemonLabel->setPixmap(QPixmap(wildPokemon->getImagePath(true)).scaled(120, 120));
+    wildPokemonLabel->move(340, 60);
+
+    // 野生寶可夢資訊
+    wildNameLabel = new QLabel(wildPokemon->getName(), this);
+    wildNameLabel->setStyleSheet("color: black; font-weight: bold;");
+    wildNameLabel->move(50, 60);
+
+    wildLevelLabel = new QLabel(QString("Lv:%1").arg(wildPokemon->getLevel()), this);
+    wildLevelLabel->setStyleSheet("color: black; font-weight: bold;");
+    wildLevelLabel->move(160, 60);
+
+    wildHpBar = new QProgressBar(this);
+    wildHpBar->setGeometry(112, 92, 108, 10);
+    wildHpBar->setRange(0, wildPokemon->getMaxHp());
+    wildHpBar->setValue(wildPokemon->getHp());
+    wildHpBar->setTextVisible(false);
+    wildHpBar->setStyleSheet("QProgressBar::chunk { background-color: green; }");
+}
+
+void BattleSceneWidget::set_messageLabel(){
+    messageLabel = new QLabel(this);
+    messageLabel->setStyleSheet("color: white; font-weight: bold;");
+    messageLabel->setGeometry(36, 350, 400, 60);
+}
+
+void BattleSceneWidget::set_actionMenu(){
+    actionMenu = new QWidget(this);
+    actionMenu->setGeometry(281, 337, 228, 92);
+    actionMenu->setStyleSheet("background: transparent;");
+    QGridLayout *actionLayout = new QGridLayout(actionMenu);
+    actionLayout->setSpacing(5);
+    actionLayout->setContentsMargins(0,0,0,0);
+
+    fightButton = new QPushButton("Fight", actionMenu);
+    bagButton = new QPushButton("Bag", actionMenu);
+    pokemonButton = new QPushButton("Pokémon", actionMenu);
+    runButton = new QPushButton("Run", actionMenu);
+
+    fightButton->setFocusPolicy(Qt::StrongFocus);
+    bagButton->setFocusPolicy(Qt::StrongFocus);
+    pokemonButton->setFocusPolicy(Qt::StrongFocus);
+    runButton->setFocusPolicy(Qt::StrongFocus);
+
+    fightButton->setStyleSheet(buttonStyle);
+    bagButton->setStyleSheet(buttonStyle);
+    pokemonButton->setStyleSheet(buttonStyle);
+    runButton->setStyleSheet(buttonStyle);
+
+    actionLayout->addWidget(fightButton, 0, 0);
+    actionLayout->addWidget(bagButton, 0, 1);
+    actionLayout->addWidget(pokemonButton, 1, 0);
+    actionLayout->addWidget(runButton, 1, 1);
+
+    connect(fightButton, &QPushButton::clicked, this, &BattleSceneWidget::onFightClicked);
+    connect(bagButton, &QPushButton::clicked, this, &BattleSceneWidget::onBagClicked);
+    connect(pokemonButton, &QPushButton::clicked, this, &BattleSceneWidget::onPokemonClicked);
+    connect(runButton, &QPushButton::clicked, this, &BattleSceneWidget::onRunClicked);
+
+    actionButtons.append(fightButton);
+    actionButtons.append(bagButton);
+    actionButtons.append(pokemonButton);
+    actionButtons.append(runButton);
+    actionButtons[selectedActionIndex]->setFocus();
+}
+
+void BattleSceneWidget::set_fightMenu(){
+    fightMenu = new QWidget(this);
+    fightMenu->setGeometry(0, 317, 525, 133);
+    fightMenu->hide();
+
+    fightMenuBackground = new QLabel(fightMenu);
+    fightMenuBackground->setPixmap(QPixmap(":/battle/data/battle/fight_skill.png").scaled(525, 133));
+    fightMenuBackground->setGeometry(0, 0, 525, 133);
+    fightMenuBackground->lower();
+
+    QGridLayout *gridLayout = new QGridLayout(fightMenu);
+    gridLayout->setContentsMargins(15, 16, 190, 16);
+    gridLayout->setSpacing(5);
+
+    QVector<Move*> moves = playerPokemon->getMoves();
+    for (int i = 0; i < 4; ++i) {
+        QPushButton *skillButton;
+        if (i < moves.size()) {
+            Move *move = moves[i];
+            skillButton = new QPushButton(move->getName(), fightMenu);
+            connect(skillButton, &QPushButton::clicked, this, &BattleSceneWidget::onSkillClicked);
+        } else {
+            skillButton = new QPushButton("No Skill", fightMenu);
+            skillButton->setEnabled(false); // 禁用按鈕，無法攻擊
+        }
+        skillButton->setFocusPolicy(Qt::StrongFocus);
+        skillButton->setStyleSheet(buttonStyle);
+        gridLayout->addWidget(skillButton, i / 2, i % 2);
+        skillButtons.append(skillButton);
+    }
+
+    skillPPLabel = new QLabel("--/--", fightMenu);
+    skillPPLabel->setStyleSheet("color: black; font-weight: bold; font-size: 20px");
+    skillPPLabel->move(440, 35);
+
+    skillPowerLabel = new QLabel("--", fightMenu);
+    skillPowerLabel->setStyleSheet("color: black; font-weight: bold; font-size: 20px");
+    skillPowerLabel->move(440, 80);
+
+    backButton_fight = new QPushButton("Back", fightMenu);
+    backButton_fight->setGeometry(440, 0, 60, 30);
+    backButton_fight->setStyleSheet(buttonStyle);
+    backButton_fight->hide();
+    connect(backButton_fight, &QPushButton::clicked, this, [this]() {
+        fightMenu->hide();
+        for (auto btn : actionButtons) {
+            btn->setEnabled(true);
+            btn->show();
+        }
+    });
+}
+
+void BattleSceneWidget::set_battleBag(){
+    bagOverlayLabel = new QLabel(this);
+    bagOverlayLabel->setGeometry(0, 317, 525, 133);
+    bagOverlayLabel->setStyleSheet("background-color: white; color: black; font-weight: bold;");
+    bagOverlayLabel->setAlignment(Qt::AlignTop);
+    bagOverlayLabel->hide();
+
+    bagItemLabel = new QLabel(this);
+    bagItemLabel->setStyleSheet("color: black; font-weight: bold;");
+    bagItemLabel->setGeometry(20, 350, 400, 40);
+    bagItemLabel->hide();
+
+    backButton_bag  = new QPushButton("Back", this);
+    backButton_bag ->setGeometry(450, 400, 60, 30);
+    backButton_bag ->setStyleSheet(buttonStyle);
+    backButton_bag ->hide();
+    connect(backButton_bag , &QPushButton::clicked, this, [this]() {
+        hideBagMenu();
+    });
+
+    // Potion Button
+    potionButton = new QPushButton("Use Potion", this);
+    potionButton->setGeometry(20, 400, 120, 30);
+    potionButton->setStyleSheet(buttonStyle);
+    potionButton->hide();
+    connect(potionButton, &QPushButton::clicked, this, [this]() {
+        int count = bag->getItemCount("Potion");
+        if (count > 0) {
+            int heal = 20;
+            int newHp = qMin(playerPokemon->getMaxHp(), playerPokemon->getHp() + heal);
+            playerPokemon->setHp(newHp);
+            bag->useItem("Potion");
+            updateInfo();
+            messageLabel->setText(playerPokemon->getName() + " restored HP!");
+        } else {
+            messageLabel->setText("No Potion left!");
+        }
+        hideBagMenu();
+    });
+
+    // Ether Button
+    etherButton = new QPushButton("Use Ether", this);
+    etherButton->setGeometry(160, 400, 120, 30);
+    etherButton->setStyleSheet(buttonStyle);
+    etherButton->hide();
+    connect(etherButton, &QPushButton::clicked, this, [this]() {
+        int count = bag->getItemCount("Ether");
+        if (count > 0) {
+            showEtherMenu();
+        } else {
+            messageLabel->setText("No Ether left!");
+            hideBagMenu();
+        }
+    });
+
+    // Poké Ball Button
+    pokeballButton = new QPushButton("Throw Poké Ball", this);
+    pokeballButton->setGeometry(300, 400, 140, 30);
+    pokeballButton->setStyleSheet(buttonStyle);
+    pokeballButton->hide();
+    connect(pokeballButton, &QPushButton::clicked, this, [this]() {
+        int count = bag->getItemCount("Poké Ball");
+        if (count > 0) {
+            double captureRate = 0.5 * (1.0 - (double)wildPokemon->getHp() / wildPokemon->getMaxHp());
+            double roll = QRandomGenerator::global()->generateDouble();
+            bag->useItem("Poké Ball");
+            if (roll < captureRate) {
+                messageLabel->setText("You caught " + wildPokemon->getName() + "!");
+                collection->addPokemon(new Pokemon(*wildPokemon));
+                QTimer::singleShot(1000, this, [this]() {
+                    emit battleEnded();
+                    close();
+                });
+            } else {
+                messageLabel->setText("The Pokémon broke free!");
+                QTimer::singleShot(500, this, [this]() {
+                    processEnemyTurn();
+                });
+            }
+        } else {
+            messageLabel->setText("No Poké Ball left!");
+            QTimer::singleShot(500, this, [this]() {
+                processEnemyTurn();
+            });
+        }
+        hideBagMenu();
+    });
+}
+
+void BattleSceneWidget::set_etherMenu(){
+    etherMenu = new QWidget(this);
+    etherMenu->setGeometry(0, 317, 525, 133);
+    etherMenu->setStyleSheet("background-color: white;");
+    etherMenu->hide();
+
+    for (int i = 0; i < 4; ++i) {
+        etherSkillButtons[i] = new QPushButton(etherMenu);
+        etherSkillButtons[i]->setGeometry(20 + i * 125, 40, 120, 50);
+        etherSkillButtons[i]->setStyleSheet(buttonStyle);
+        etherSkillButtons[i]->hide();
+        connect(etherSkillButtons[i], &QPushButton::clicked, this, [this, i]() {
+            QVector<Move*> moves = playerPokemon->getMoves();
+            if (i < moves.size()) {
+                moves[i]->recoverPp();
+                bag->useItem("Ether");
+                messageLabel->setText(moves[i]->getName() + "'s PP restored!");
+                hideEtherMenu();
+            }
+        });
+    }
+    backButton_ether = new QPushButton("Back", this);
+    backButton_ether->setGeometry(450, 400, 60, 30);
+    backButton_ether->setStyleSheet(buttonStyle);
+    backButton_ether->hide();
+    connect(backButton_ether, &QPushButton::clicked, this, [this]() {
+        hideEtherMenu();
+        showBagMenu();
+    });
+}

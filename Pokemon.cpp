@@ -132,7 +132,7 @@ bool Pokemon::isFainted() const {
 
 void Pokemon::restoreAllPp() {
     for (Move* move : moves) {
-        move->restore();
+        move->recoverPp();
     }
     qDebug() << name << "'s PP has been fully restored.";
 }

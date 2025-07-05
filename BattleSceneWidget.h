@@ -72,4 +72,32 @@ private:
     const QString buttonStyle =
         "QPushButton { color: black; font-weight: bold; background-color: white; }"
         "QPushButton:focus { border: 2px solid blue; }";
+
+    QLabel *bagOverlayLabel;
+    QLabel *bagItemLabel;
+    QPushButton *potionButton;
+    QPushButton *etherButton;
+    QPushButton *pokeballButton;
+    QPushButton *backButton_bag;
+    QPushButton *backButton_fight;
+    QPushButton *backButton_ether;
+
+    void showBagMenu();
+    void hideBagMenu();
+
+    QWidget *etherMenu;
+    QPushButton *etherSkillButtons[4];
+
+    void showEtherMenu();
+    void hideEtherMenu();
+
+    // setUI helper
+    void set_background();
+    void set_playerPokemon();
+    void set_wildPokemon();
+    void set_messageLabel();
+    void set_actionMenu();
+    void set_fightMenu();
+    void set_battleBag();
+    void set_etherMenu();
 };

@@ -14,6 +14,6 @@ void Move::use() {
     }
 }
 
-void Move::restore() {
+void Move::recoverPp() {
     currentPp = maxPp;
 }

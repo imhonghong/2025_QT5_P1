@@ -11,7 +11,7 @@ public:
     int getCurrentPp() const;
 
     void use();
-    void restore();
+    void recoverPp();
 
 private:
     QString name;
