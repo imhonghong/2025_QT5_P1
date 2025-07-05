@@ -67,6 +67,7 @@ private:
 
     void setupUI();
     void updateInfo();
+    void processEnemyTurn();
 
     const QString buttonStyle =
         "QPushButton { color: black; font-weight: bold; background-color: white; }"

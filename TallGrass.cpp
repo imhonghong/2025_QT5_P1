@@ -14,5 +14,5 @@ void TallGrass::generateTriggerRect() {
     int offsetY = QRandomGenerator::global()->bounded(0, maxY + 1);
     triggerRect = QRect(rect.x() + offsetX, rect.y() + offsetY, 40, 40);
 
-    qDebug() << "TallGrass triggerRect at:" << triggerRect;
+    // qDebug() << "TallGrass triggerRect at:" << triggerRect;
 }

@@ -185,7 +185,7 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
         player->move(dx, dy, mapWidth, mapHeight);
     }
     player->updateWalkFrame(); // 切換動畫幀
-    qDebug() << "Key pressed:" << event->key();
+    // qDebug() << "Key pressed:" << event->key();
 
     posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();

@@ -21,6 +21,7 @@ public:
     int getMaxHp() const;
     int getAttack() const;
     int getDefense() const;
+    void setHp(int x) {hp = x;}
 
     void receiveDamage(int damage);
     void heal(int amount);

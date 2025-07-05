@@ -4,6 +4,8 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QKeyEvent>
+#include <QTimer>
+#include <QRandomGenerator>
 
 BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, QWidget *parent)
     : QWidget(parent), wildPokemon(wildPokemon), bag(bag), collection(collection) {
@@ -206,6 +208,12 @@ void BattleSceneWidget::onSkillClicked() {
     if (damage < 1) damage = 1;
 
     wildPokemon->receiveDamage(damage);
+
+    if (wildPokemon->getHp() > 0) {
+        QTimer::singleShot(500, this, [this]() {
+            processEnemyTurn();
+        });
+    }
     move->use();
 
     qDebug() << playerPokemon->getName() << "used" << move->getName() << "and dealt" << damage << "damage.";
@@ -309,3 +317,70 @@ void BattleSceneWidget::keyPressEvent(QKeyEvent *event) {
         actionButtons[selectedActionIndex]->setFocus();
     }
 }
+
+void BattleSceneWidget::processEnemyTurn() {
+    // 1) 確認敵人還活著
+    if (wildPokemon->getHp() <= 0) {
+        messageLabel->setText(wildPokemon->getName() + " fainted!");
+        qDebug() << "[EnemyTurn] Enemy fainted, skipping enemy attack.";
+        return;
+    }
+
+    // 2) 正確隨機選擇技能
+    QVector<Move*> moves = wildPokemon->getMoves();
+    Move* selectedMove = nullptr;
+
+    if (!moves.isEmpty()) {
+        int idx = QRandomGenerator::global()->bounded(moves.size());
+        selectedMove = moves[idx];
+    }
+
+    QString moveName;
+    int damage;
+
+    if (selectedMove) {
+        moveName = selectedMove->getName();
+        damage = selectedMove->getPower();
+    } else {
+        moveName = "Tackle";
+        damage = 10;
+    }
+
+    // 顯示使用技能訊息
+    QString useMoveMsg = wildPokemon->getName() + " uses " + moveName + "!";
+    messageLabel->setText(useMoveMsg);
+    qDebug() << "[EnemyTurn]" << useMoveMsg;
+
+    // 3) 計算傷害
+    int currentHp = playerPokemon->getHp();
+    int calcDamage = (damage + wildPokemon->getAttack() - playerPokemon->getDefense()) * wildPokemon->getLevel();
+    if (calcDamage < 1) calcDamage = 1;
+    int newHp = qMax(0, currentHp - calcDamage);
+    playerPokemon->setHp(newHp);
+
+    // 更新畫面
+    playerHpLabel->setText(QString("HP: %1/%2").arg(newHp).arg(playerPokemon->getMaxHp()));
+    playerHpBar->setValue(newHp);
+
+    QString damageMsg = wildPokemon->getName() + " deals " +
+                        QString::number(calcDamage) + " damage to " +
+                        playerPokemon->getName() + "!";
+    messageLabel->setText(damageMsg);
+    qDebug() << "[EnemyTurn]" << damageMsg;
+
+    // 4) 玩家死亡檢查
+    if (newHp <= 0) {
+        QString faintMsg = playerPokemon->getName() + " fainted!";
+        messageLabel->setText(faintMsg);
+        qDebug() << "[EnemyTurn]" << faintMsg;
+        // TODO: 銜接換寶可夢流程
+    }
+
+    // 5) 停頓 0.5 秒後顯示輪到玩家
+    QTimer::singleShot(500, this, [this]() {
+        messageLabel->setText("Your turn!");
+        qDebug() << "[EnemyTurn] Player's turn begins.";
+    });
+}
+
+
