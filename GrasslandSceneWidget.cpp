@@ -151,20 +151,15 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
         TallGrass* grass = dynamic_cast<TallGrass*>(barrier);
         if (grass && !grass->hasTriggered && grass->getTriggerRect().intersects(player->getRect())) {
             grass->hasTriggered = true;
-
             // 產生隨機野生寶可夢
             int idx = QRandomGenerator::global()->bounded(3);
-            Pokemon *wildPokemon = nullptr;
-            if (idx == 0)
-                wildPokemon = new Pokemon("Charmander", 1, 30, 5, 5, ":/battle/data/battle/charmander.png", ":/battle/data/battle/charmander_back.png");
-            else if (idx == 1)
-                wildPokemon = new Pokemon("Squirtle", 1, 30, 5, 5, ":/battle/data/battle/squirtle.png", ":/battle/data/battle/squirtle_back.png");
-            else
-                wildPokemon = new Pokemon("Bulbasaur", 1, 30, 5, 5, ":/battle/data/battle/bulbasaur.png", ":/battle/data/battle/bulbasaur_back.png");
+            QString name;
+            if (idx == 0) name = "Charmander";
+            else if (idx == 1) name = "Squirtle";
+            else name = "Bulbasaur";
+            Pokemon *wildPokemon = Pokemon::createPokemon(name, 1, true);
 
-            // 使用 QDebug 顯示代替進入戰鬥畫面
-            qDebug() << "Encountered wild" << wildPokemon->getName() << "at level" << wildPokemon->getLevel();
-
+            emit enterBattle(wildPokemon);
             break; // 一次只觸發一次
         }
     }
@@ -215,5 +210,4 @@ void GrasslandSceneWidget::addGrasslandBarrier(){
     barriers.append(new TallGrass(500, 1000, 40*6, 40*5)); //中間第一階
     barriers.append(new TallGrass(665, 545, 40*6, 40*5)); //中間第二階
     barriers.append(new TallGrass(415, 255, 40*12, 40*5)); //上面
-
 }

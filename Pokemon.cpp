@@ -1,6 +1,7 @@
 #include "Pokemon.h"
 #include <QDebug>
 
+
 Pokemon::Pokemon(const QString &name,
                  int level,
                  int maxHp,
@@ -16,6 +17,37 @@ Pokemon::Pokemon(const QString &name,
       defense(defense),
       frontImagePath(frontImagePath),
       backImagePath(backImagePath) {}
+
+QMap<QString, QVector<QString>> Pokemon::skillTable = {
+    {"Charmander", {"Scratch:10:20", "Growl:15:20", "Scary Face:20:15", "Flare Blitz:25:5"}},
+    {"Squirtle", {"Tackle:10:20", "Tail Whip:15:20", "Protect:20:15", "Wave Crash:25:5"}},
+    {"Bulbasaur", {"Tackle:10:20", "Growl:15:20", "Growth:20:15", "Razor Leaf:25:5"}}
+};
+
+QMap<QString, QStringList> Pokemon::imagePaths = {
+    {"Charmander", {":/battle/data/battle/charmander.png", ":/battle/data/battle/charmander_back.png"}},
+    {"Squirtle", {":/battle/data/battle/squirtle.png", ":/battle/data/battle/squirtle_back.png"}},
+    {"Bulbasaur", {":/battle/data/battle/bulbasaur.png", ":/battle/data/battle/bulbasaur_back.png"}}
+};
+
+QMap<QString, QVector<int>> Pokemon::hpTable = {
+    {"Charmander", {30, 80, 100}},
+    {"Squirtle", {30, 80, 100}},
+    {"Bulbasaur", {30, 80, 100}}
+};
+
+QMap<QString, QVector<int>> Pokemon::atkTable = {
+    {"Charmander", {5, 10, 15}},
+    {"Squirtle", {5, 10, 15}},
+    {"Bulbasaur", {5, 10, 15}}
+};
+
+QMap<QString, QVector<int>> Pokemon::defTable = {
+    {"Charmander", {5, 10, 15}},
+    {"Squirtle", {5, 10, 15}},
+    {"Bulbasaur", {5, 10, 15}}
+};
+
 
 QString Pokemon::getName() const { return name; }
 int Pokemon::getLevel() const { return level; }
@@ -48,6 +80,41 @@ QString Pokemon::getImagePath(bool useFront) const {
     else
         return backImagePath;
 }
+
+Pokemon* Pokemon::createPokemon(const QString &name, int level, bool isWild) {
+    if (!hpTable.contains(name)) return nullptr;
+
+    int stage = (level <= 1) ? 0 : (level <= 3) ? 1 : 2;
+    int hp = hpTable[name][stage];
+    int atk = atkTable[name][stage];
+    int def = defTable[name][stage];
+    QString front = imagePaths[name][0];
+    QString back = imagePaths[name][1];
+
+    Pokemon *p = new Pokemon(name, level, hp, atk, def, front, back);
+
+    // 技能依等級設定
+    QVector<QString> skills = skillTable[name];
+    if (level >= 1 && skills.size() >= 1) {
+        QStringList parts = skills[0].split(":");
+        p->addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+    }
+    if (level >= 2 && skills.size() >= 2) {
+        QStringList parts = skills[1].split(":");
+        p->addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+    }
+    if (level >= 3 && skills.size() >= 3) {
+        QStringList parts = skills[2].split(":");
+        p->addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+    }
+    if (level >= 4 && skills.size() >= 4) {
+        QStringList parts = skills[3].split(":");
+        p->addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+    }
+
+    return p;
+}
+
 
 void Pokemon::levelUp() {
     level++;

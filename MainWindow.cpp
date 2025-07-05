@@ -3,6 +3,7 @@
 #include "LabSceneWidget.h"
 #include "TownSceneWidget.h"
 #include "GrasslandSceneWidget.h"
+#include "BattleSceneWidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -24,8 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(townScene);
     stackedWidget->addWidget(grasslandScene);
     stackedWidget->setCurrentWidget(titleScene);
-
-
     setupConnections();
 
 }
@@ -38,6 +37,7 @@ void MainWindow::setupConnections() {
     connect(townScene, &TownSceneWidget::enterGrassland, this, &MainWindow::enterGrassland);
     connect(townScene, &TownSceneWidget::returnToLab, this, &MainWindow::returnToLab);
     connect(grasslandScene, &GrasslandSceneWidget::returnToTown, this, &MainWindow::returnToTown);
+    connect(grasslandScene, &GrasslandSceneWidget::enterBattle, this, &MainWindow::startBattle);
 }
 
 void MainWindow::startGame() {
@@ -58,4 +58,16 @@ void MainWindow::returnToLab() {
 
 void MainWindow::returnToTown() {
     stackedWidget->setCurrentWidget(townScene);
+}
+
+void MainWindow::startBattle(Pokemon* wildPokemon) {
+    BattleSceneWidget *battleScene = new BattleSceneWidget(wildPokemon, bag, pokemonCollection);
+    stackedWidget->addWidget(battleScene);
+    stackedWidget->setCurrentWidget(battleScene);
+
+    connect(battleScene, &BattleSceneWidget::battleEnded, this, [=]() {
+        stackedWidget->removeWidget(battleScene);
+        battleScene->deleteLater();
+        stackedWidget->setCurrentWidget(grasslandScene);
+    });
 }

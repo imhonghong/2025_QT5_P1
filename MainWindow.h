@@ -37,4 +37,5 @@ private slots:
     void enterGrassland();
     void returnToLab();
     void returnToTown();
+    void startBattle(Pokemon* wildPokemon);
 };

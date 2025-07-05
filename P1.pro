@@ -11,6 +11,7 @@ CONFIG += c++11
 SOURCES += \
     Bag.cpp \
     BagWidget.cpp \
+    BattleSceneWidget.cpp \
     BoxBarrier.cpp \
     ChoosePokemonWidget.cpp \
     DialogWidget.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     Bag.h \
     BagWidget.h \
     Barrier.h \
+    BattleSceneWidget.h \
     BoxBarrier.h \
     ChoosePokemonWidget.h \
     DialogWidget.h \

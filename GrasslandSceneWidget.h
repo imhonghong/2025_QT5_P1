@@ -20,6 +20,7 @@ public:
 
 signals:
     void returnToTown();
+    void enterBattle(Pokemon* wildPokemon);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

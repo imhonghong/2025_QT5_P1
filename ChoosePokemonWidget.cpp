@@ -68,7 +68,7 @@ void ChoosePokemonWidget::showConfirmDialog(const QString &name) {
     connect(yesButton, &QPushButton::clicked, this, [=]() {
         QString frontPath = QString(":/battle/data/battle/%1.png").arg(name.toLower());
         QString backPath = QString(":/battle/data/battle/%1_back.png").arg(name.toLower());
-        Pokemon *p = new Pokemon(name, 5, 20, 10, 10, frontPath, backPath);
+        Pokemon *p = Pokemon::createPokemon(name, 1, false);
         collection->addPokemon(p);
 
         // 改為顯示於父場景

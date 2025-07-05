@@ -2,6 +2,7 @@
 
 #include <QString>
 #include <QVector>
+#include <QMap>
 #include "Move.h"
 
 class Pokemon {
@@ -33,6 +34,8 @@ public:
     bool isFainted() const;
     void restoreAllPp();
 
+    static Pokemon* createPokemon(const QString &name, int level = 1, bool isWild = true);
+
 private:
     QString name;
     int level;
@@ -45,4 +48,10 @@ private:
 
     QString frontImagePath;
     QString backImagePath;
+
+    static  QMap<QString, QVector<QString>> skillTable;
+    static  QMap<QString, QStringList> imagePaths;
+    static  QMap<QString, QVector<int>> hpTable;
+    static  QMap<QString, QVector<int>> atkTable;
+    static  QMap<QString, QVector<int>> defTable;
 };
