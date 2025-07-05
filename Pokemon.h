@@ -27,7 +27,11 @@ public:
     void addMove(Move *move);
     QVector<Move*> getMoves() const;
 
-    QString getImagePath(bool useBack) const;
+    QString getImagePath(bool useFront) const;
+
+    void levelUp();
+    bool isFainted() const;
+    void restoreAllPp();
 
 private:
     QString name;

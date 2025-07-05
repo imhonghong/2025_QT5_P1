@@ -1,4 +1,5 @@
 #include "Pokemon.h"
+#include <QDebug>
 
 Pokemon::Pokemon(const QString &name,
                  int level,
@@ -46,4 +47,25 @@ QString Pokemon::getImagePath(bool useFront) const {
         return frontImagePath;
     else
         return backImagePath;
+}
+
+void Pokemon::levelUp() {
+    level++;
+    // 每兩級進化（簡易顯示可先跳過）
+    attack += 5;
+    defense += 5;
+    maxHp += 10;
+    hp = maxHp;
+    qDebug() << name << "leveled up to level" << level;
+}
+
+bool Pokemon::isFainted() const {
+    return hp <= 0;
+}
+
+void Pokemon::restoreAllPp() {
+    for (Move* move : moves) {
+        move->restore();
+    }
+    qDebug() << name << "'s PP has been fully restored.";
 }

@@ -3,8 +3,12 @@
 #include "NPCBarrier.h"
 #include "SolidBarrier.h"
 #include "Ledge.h"
+#include "TallGrass.h"
+
+#include <QDebug>
 #include <QPainter>
 #include <QKeyEvent>
+#include <QRandomGenerator>
 
 GrasslandSceneWidget::GrasslandSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent)
     : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
@@ -59,11 +63,15 @@ void GrasslandSceneWidget::paintEvent(QPaintEvent *event) {
         painter.fillRect(playerScreenX, playerScreenY, player->getRect().width(), player->getRect().height(), Qt::red);
     }
 
-    painter.setBrush(QColor(255, 0, 0, 100)); // 半透明紅色
+    painter.setBrush(QColor(0, 255, 0, 100)); // 半透明綠色
     for (const Barrier* barrier : barriers) {
-        int drawX = barrier->getRect().x() - bgX;
-        int drawY = barrier->getRect().y() - bgY;
-        painter.drawRect(drawX, drawY, barrier->getRect().width(), barrier->getRect().height());
+        const TallGrass* grass = dynamic_cast<const TallGrass*>(barrier);
+        if (grass) {
+            QRect drawRect = grass->getTriggerRect();
+            int drawX = drawRect.x() - bgX;
+            int drawY = drawRect.y() - bgY;
+            painter.drawRect(drawX, drawY, drawRect.width(), drawRect.height());
+        }
     }
 }
 
@@ -138,6 +146,29 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
         player->move(dx, dy, mapWidth, mapHeight);
     }
 
+    // 檢查是否觸發 Tall Grass 遭遇野生寶可夢
+    for (Barrier* barrier : barriers) {
+        TallGrass* grass = dynamic_cast<TallGrass*>(barrier);
+        if (grass && !grass->hasTriggered && grass->getTriggerRect().intersects(player->getRect())) {
+            grass->hasTriggered = true;
+
+            // 產生隨機野生寶可夢
+            int idx = QRandomGenerator::global()->bounded(3);
+            Pokemon *wildPokemon = nullptr;
+            if (idx == 0)
+                wildPokemon = new Pokemon("Charmander", 1, 30, 5, 5, ":/battle/data/battle/charmander.png", ":/battle/data/battle/charmander_back.png");
+            else if (idx == 1)
+                wildPokemon = new Pokemon("Squirtle", 1, 30, 5, 5, ":/battle/data/battle/squirtle.png", ":/battle/data/battle/squirtle_back.png");
+            else
+                wildPokemon = new Pokemon("Bulbasaur", 1, 30, 5, 5, ":/battle/data/battle/bulbasaur.png", ":/battle/data/battle/bulbasaur_back.png");
+
+            // 使用 QDebug 顯示代替進入戰鬥畫面
+            qDebug() << "Encountered wild" << wildPokemon->getName() << "at level" << wildPokemon->getLevel();
+
+            break; // 一次只觸發一次
+        }
+    }
+
     player->updateWalkFrame();
     posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
@@ -178,5 +209,11 @@ void GrasslandSceneWidget::addGrasslandBarrier(){
     barriers.append(new Ledge(80, 1310,170, 25, Ledge::DOWN));
 
     // long grass = 40 * 40;
+    barriers.append(new TallGrass(500, 1455, 40*2, 40*4)); //下方入口
+    barriers.append(new TallGrass(80, 1340, 40*9, 40*4)); //左下
+    barriers.append(new TallGrass(625, 1340, 40*7, 40*4)); //右下
+    barriers.append(new TallGrass(500, 1000, 40*6, 40*5)); //中間第一階
+    barriers.append(new TallGrass(665, 545, 40*6, 40*5)); //中間第二階
+    barriers.append(new TallGrass(415, 255, 40*12, 40*5)); //上面
 
 }

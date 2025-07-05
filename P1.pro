@@ -22,6 +22,7 @@ SOURCES += \
     Player.cpp \
     Pokemon.cpp \
     PokemonCollection.cpp \
+    TallGrass.cpp \
     TitleSceneWidget.cpp \
     TownSceneWidget.cpp \
     main.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
     Pokemon.h \
     PokemonCollection.h \
     SolidBarrier.h \
+    TallGrass.h \
     TitleSceneWidget.h \
     TownSceneWidget.h
 
