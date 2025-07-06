@@ -26,9 +26,16 @@ QMap<QString, QVector<QString>> Pokemon::skillTable = {
 
 QMap<QString, QStringList> Pokemon::imagePaths = {
     {"Charmander", {":/battle/data/battle/charmander.png", ":/battle/data/battle/charmander_back.png"}},
+    {"Charmeleon", {":/battle/data/battle/charmeleon.png", ":/battle/data/battle/charmeleon_back.png"}},
+    {"Charizard", {":/battle/data/battle/charizard.png", ":/battle/data/battle/charizard_back.png"}},
     {"Squirtle", {":/battle/data/battle/squirtle.png", ":/battle/data/battle/squirtle_back.png"}},
-    {"Bulbasaur", {":/battle/data/battle/bulbasaur.png", ":/battle/data/battle/bulbasaur_back.png"}}
+    {"Wartortle", {":/battle/data/battle/wartortle.png", ":/battle/data/battle/wartortle_back.png"}},
+    {"Blastoise", {":/battle/data/battle/blastoise.png", ":/battle/data/battle/blastoise_back.png"}},
+    {"Bulbasaur", {":/battle/data/battle/bulbasaur.png", ":/battle/data/battle/bulbasaur_back.png"}},
+    {"Ivysaur", {":/battle/data/battle/ivysaur.png", ":/battle/data/battle/ivysaur_back.png"}},
+    {"Venusaur", {":/battle/data/battle/venusaur.png", ":/battle/data/battle/venusaur_back.png"}}
 };
+
 
 QMap<QString, QVector<int>> Pokemon::hpTable = {
     {"Charmander", {30, 80, 100}},
@@ -118,13 +125,61 @@ Pokemon* Pokemon::createPokemon(const QString &name, int level, bool isWild) {
 
 void Pokemon::levelUp() {
     level++;
-    // 每兩級進化（簡易顯示可先跳過）
-    attack += 5;
-    defense += 5;
-    maxHp += 10;
-    hp = maxHp;
+
+    // 更新 Atk, Def, MaxHP, HP
+    if (atkTable.contains(name)) {
+        int stage = (level <= 1) ? 0 : (level <= 3) ? 1 : 2;
+        attack = atkTable[name][stage];
+        defense = defTable[name][stage];
+        maxHp = hpTable[name][stage];
+        hp = maxHp;
+    }
+
+    // 學會新技能
+    if (skillTable.contains(name)) {
+        QVector<QString> skills = skillTable[name];
+        if (level >= 1 && skills.size() >= 1 && moves.size() < 1) {
+            QStringList parts = skills[0].split(":");
+            addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+        }
+        if (level >= 2 && skills.size() >= 2 && moves.size() < 2) {
+            QStringList parts = skills[1].split(":");
+            addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+        }
+        if (level >= 3 && skills.size() >= 3 && moves.size() < 3) {
+            QStringList parts = skills[2].split(":");
+            addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+        }
+        if (level >= 4 && skills.size() >= 4 && moves.size() < 4) {
+            QStringList parts = skills[3].split(":");
+            addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+        }
+    }
+
+    // 進化名稱與圖片更新
+    if (name == "Charmander" && level >= 3 && level < 5) {
+        name = "Charmeleon";
+    } else if (name == "Charmeleon" && level >= 5) {
+        name = "Charizard";
+    } else if (name == "Squirtle" && level >= 3 && level < 5) {
+        name = "Wartortle";
+    } else if (name == "Wartortle" && level >= 5) {
+        name = "Blastoise";
+    } else if (name == "Bulbasaur" && level >= 3 && level < 5) {
+        name = "Ivysaur";
+    } else if (name == "Ivysaur" && level >= 5) {
+        name = "Venusaur";
+    }
+
+    // 更新圖片
+    if (imagePaths.contains(name)) {
+        frontImagePath = imagePaths[name][0];
+        backImagePath = imagePaths[name][1];
+    }
+
     qDebug() << name << "leveled up to level" << level;
 }
+
 
 bool Pokemon::isFainted() const {
     return hp <= 0;

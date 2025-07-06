@@ -1,4 +1,5 @@
 #include "BattleSceneWidget.h"
+#include "DialogWidget.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPixmap>
@@ -145,7 +146,16 @@ void BattleSceneWidget::onSkillClicked() {
 
     if (wildPokemon->isFainted()) {
         messageLabel->setText(QString("%1 fainted!").arg(wildPokemon->getName()));
-        emit battleEnded();
+
+        // 執行升級
+        playerPokemon->levelUp();
+        messageLabel->setText( "beats " +wildPokemon->getName()+"\n"+playerPokemon->getName() + "level up!");
+
+        // 延遲 1000ms 後關閉戰鬥
+        QTimer::singleShot(1000, this, [this]() {
+            emit battleEnded();
+            close();
+        });
     }
 }
 
