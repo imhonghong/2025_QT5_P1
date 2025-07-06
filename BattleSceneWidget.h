@@ -80,16 +80,21 @@ private:
     QPushButton *pokeballButton;
     QPushButton *backButton_bag;
     QPushButton *backButton_fight;
-    QPushButton *backButton_ether;
-
     void showBagMenu();
     void hideBagMenu();
 
     QWidget *etherMenu;
     QPushButton *etherSkillButtons[4];
-
+    QPushButton *backButton_ether;
     void showEtherMenu();
     void hideEtherMenu();
+
+    QWidget *switchPokemonMenu;
+    QPushButton *switchPokemonButtons[4];
+    QLabel *switchPokemonInfoLabels[4];
+    QPushButton *backButton_switchPokemon;
+    void showSwitchPokemonMenu();
+    void hideSwitchPokemonMenu();
 
     // setUI helper
     void set_background();

@@ -34,6 +34,51 @@ void BattleSceneWidget::setupUI() {
     set_battleBag();        // Bag 顯示 Label
     set_etherMenu();        // Ether Menu
 
+    switchPokemonMenu = new QWidget(this);
+    switchPokemonMenu->setGeometry(0, 317, 525, 133);
+    switchPokemonMenu->setStyleSheet("background-color: white;");
+    switchPokemonMenu->hide();
+
+    for (int i = 0; i < 4; ++i) {
+        switchPokemonButtons[i] = new QPushButton(switchPokemonMenu);
+        switchPokemonButtons[i]->setGeometry(20 + i * 125, 30, 120, 50);
+        switchPokemonButtons[i]->setStyleSheet(buttonStyle);
+        switchPokemonButtons[i]->hide();
+
+        switchPokemonInfoLabels[i] = new QLabel(switchPokemonMenu);
+        switchPokemonInfoLabels[i]->setGeometry(20 + i * 125, 85, 120, 20);
+        switchPokemonInfoLabels[i]->setStyleSheet("color: black; font-weight: bold; text-align: center;");
+        switchPokemonInfoLabels[i]->setAlignment(Qt::AlignCenter);
+        switchPokemonInfoLabels[i]->hide();
+
+
+        connect(switchPokemonButtons[i], &QPushButton::clicked, this, [this, i]() {
+            QVector<Pokemon*> pokemons = collection->getAllPokemons();
+            if (i < pokemons.size() && pokemons[i]->getHp() > 0) {
+                playerPokemon = pokemons[i];
+                updateInfo();
+                messageLabel->setText("Go! " + playerPokemon->getName() + "!");
+                playerPokemonLabel->setPixmap(QPixmap(playerPokemon->getImagePath(false)).scaled(120, 120));
+                hideSwitchPokemonMenu();
+
+                // 進入敵方回合
+                QTimer::singleShot(500, this, [this]() {
+                    // processEnemyTurn();
+                });
+            }
+        });
+    }
+
+    // Back Button
+    backButton_switchPokemon = new QPushButton("Back", this);
+    backButton_switchPokemon->setGeometry(450, 420, 60, 30);
+    backButton_switchPokemon->setStyleSheet(buttonStyle);
+    backButton_switchPokemon->hide();
+
+    connect(backButton_switchPokemon, &QPushButton::clicked, this, [this]() {
+        hideSwitchPokemonMenu();
+    });
+
 }
 
 
@@ -109,13 +154,11 @@ void BattleSceneWidget::onBagClicked() {
     for (auto btn : actionButtons) {
         btn->hide();
     }
-
-
     showBagMenu();
 }
 
 void BattleSceneWidget::onPokemonClicked() {
-    messageLabel->setText("Switch Pokémon not implemented yet.");
+    showSwitchPokemonMenu();
 }
 
 void BattleSceneWidget::onRunClicked() {
@@ -258,7 +301,7 @@ void BattleSceneWidget::processEnemyTurn() {
     }
 
     // 5) 停頓 0.5 秒後顯示輪到玩家
-    QTimer::singleShot(500, this, [this]() {
+    QTimer::singleShot(1000, this, [this]() {
         messageLabel->setText("Your turn!");
         qDebug() << "[EnemyTurn] Player's turn begins.";
     });
@@ -329,6 +372,64 @@ void BattleSceneWidget::hideEtherMenu() {
     }
     hideBagMenu(); // 回到Bag關閉流程
 }
+
+void BattleSceneWidget::showSwitchPokemonMenu() {
+    switchPokemonMenu->show();
+    backButton_switchPokemon->show();
+
+    QVector<Pokemon*> pokemons = collection->getAllPokemons();
+    for (int i = 0; i < 4; ++i) {
+        if (i < pokemons.size()) {
+            Pokemon* p = pokemons[i];
+            QString buttonText = p->getName();
+            if (p == playerPokemon) {
+                buttonText += " \n(Now)";
+            }
+            switchPokemonButtons[i]->setText(buttonText);
+
+            // 防呆：若為當前 Pokémon 或已死亡，按鈕無法點擊
+            if (p == playerPokemon || p->getHp() <= 0) {
+                switchPokemonButtons[i]->setEnabled(false);
+            } else {
+                switchPokemonButtons[i]->setEnabled(true);
+            }
+
+            switchPokemonInfoLabels[i]->setText(QString("Lv:%1 HP:%2/%3")
+                .arg(p->getLevel())
+                .arg(p->getHp())
+                .arg(p->getMaxHp()));
+            switchPokemonInfoLabels[i]->show();
+        } else {
+            switchPokemonButtons[i]->setText("No Pokémon");
+            switchPokemonButtons[i]->setEnabled(false);
+            switchPokemonInfoLabels[i]->setText("");
+            switchPokemonInfoLabels[i]->hide();
+        }
+        switchPokemonButtons[i]->show();
+    }
+
+    // 隱藏 Action 按鈕
+    for (auto btn : actionButtons) {
+        btn->hide();
+    }
+}
+
+
+void BattleSceneWidget::hideSwitchPokemonMenu() {
+    switchPokemonMenu->hide();
+    backButton_switchPokemon->hide();
+    for (int i = 0; i < 4; ++i) {
+        switchPokemonButtons[i]->hide();
+        switchPokemonInfoLabels[i]->hide();
+    }
+
+    // 回到 Action Menu
+    for (auto btn : actionButtons) {
+        btn->show();
+        btn->setEnabled(true);
+    }
+}
+
 
 void BattleSceneWidget::set_background(){
     backgroundLabel = new QLabel(this);
@@ -473,7 +574,7 @@ void BattleSceneWidget::set_fightMenu(){
     skillPowerLabel->move(440, 80);
 
     backButton_fight = new QPushButton("Back", fightMenu);
-    backButton_fight->setGeometry(440, 0, 60, 30);
+    backButton_fight->setGeometry(460, 100, 60, 30);
     backButton_fight->setStyleSheet(buttonStyle);
     backButton_fight->hide();
     connect(backButton_fight, &QPushButton::clicked, this, [this]() {
@@ -523,6 +624,9 @@ void BattleSceneWidget::set_battleBag(){
             messageLabel->setText("No Potion left!");
         }
         hideBagMenu();
+        QTimer::singleShot(500, this, [this]() {
+            processEnemyTurn();
+        });
     });
 
     // Ether Button
@@ -538,6 +642,9 @@ void BattleSceneWidget::set_battleBag(){
             messageLabel->setText("No Ether left!");
             hideBagMenu();
         }
+        QTimer::singleShot(500, this, [this]() {
+            processEnemyTurn();
+        });
     });
 
     // Poké Ball Button
@@ -548,17 +655,21 @@ void BattleSceneWidget::set_battleBag(){
     connect(pokeballButton, &QPushButton::clicked, this, [this]() {
         int count = bag->getItemCount("Poké Ball");
         if (count > 0) {
-            double captureRate = 0.5 * (1.0 - (double)wildPokemon->getHp() / wildPokemon->getMaxHp());
+            double captureRate = 0.8 * (1.0 - (double)wildPokemon->getHp() / wildPokemon->getMaxHp());
             double roll = QRandomGenerator::global()->generateDouble();
             bag->useItem("Poké Ball");
+
             if (roll < captureRate) {
-                messageLabel->setText("You caught " + wildPokemon->getName() + "!");
-                collection->addPokemon(new Pokemon(*wildPokemon));
+                // 捕捉成功
+                collection->addPokemon(wildPokemon); // 加入玩家收藏，保留完整狀態
+                messageLabel->setText(wildPokemon->getName() + " was caught and added to your bag!");
+
                 QTimer::singleShot(1000, this, [this]() {
                     emit battleEnded();
                     close();
                 });
             } else {
+                // 捕捉失敗
                 messageLabel->setText("The Pokémon broke free!");
                 QTimer::singleShot(500, this, [this]() {
                     processEnemyTurn();
