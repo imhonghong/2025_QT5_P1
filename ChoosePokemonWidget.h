@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QVector>
 #include "PokemonCollection.h"
+#include "LabSceneWidget.h"
 
 class ChoosePokemonWidget : public QWidget {
     Q_OBJECT
@@ -23,6 +24,7 @@ private:
     QWidget *confirmDialog = nullptr;
     QVector<QFrame*> pokemonFrames;
     int selectedIndex = 0;
+    LabSceneWidget *lab; // 🩹 新增
 
     QWidget *confirmWidget = nullptr;
     QVector<QFrame*> confirmFrames;

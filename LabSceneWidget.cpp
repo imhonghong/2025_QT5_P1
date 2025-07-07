@@ -117,6 +117,7 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
     int step = 5;
     player->setWalking(true);
     int dx = 0, dy = 0;
+
     if (event->key() == Qt::Key_Left) {
         player->setDirection(Player::LEFT);
         dx = -step;

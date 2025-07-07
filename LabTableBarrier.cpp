@@ -22,11 +22,8 @@ void LabTableBarrier::interactWithPlayer(QWidget *parent, PokemonCollection *pok
     if (lab) lab->canMove = false;
 
     if (hasChosen) {
-        auto dialog = new DialogWidget({"You already received your Pokémon!"}, parent);
-        QObject::connect(dialog, &QWidget::destroyed, lab, [lab]() {
-            lab->canMove = true;
-            lab->setFocus();
-        });
+        new DialogWidget(QStringList({"You already received your Pokémon!"}), parent);
+        lab->canMove = true;
         return;
     }
 

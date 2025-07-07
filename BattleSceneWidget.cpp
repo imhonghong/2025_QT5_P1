@@ -208,7 +208,7 @@ void BattleSceneWidget::set_battleBag() {
     vLayout->setContentsMargins(10, 10, 10, 10);
     vLayout->setSpacing(5);
 
-    QLabel *title = new QLabel("Choose an item to use:", bagMenu);
+    QLabel *title = new QLabel("Choose an item to use:\n(Press Q or Esc to quit)", bagMenu);
     title->setStyleSheet("font-size: 18px; font-weight: bold; color: black;");
     title->setAlignment(Qt::AlignCenter);
     vLayout->addWidget(title);
@@ -220,11 +220,10 @@ void BattleSceneWidget::set_battleBag() {
     QStringList items = {
         QString("Use Potion \n(1/%1)").arg(bag->getItemCount("Potion")),
         QString("Use Ether \n(1/%1)").arg(bag->getItemCount("Ether")),
-        QString("Throw Poké Ball \n(1/%1)").arg(bag->getItemCount("Poké Ball")),
-        "Back"
+        QString("Throw Poké Ball \n(1/%1)").arg(bag->getItemCount("Poké Ball"))
     };
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 3; ++i) {
         QFrame *frame = new QFrame(bagMenu);
         frame->setFrameShape(QFrame::Box);
         frame->setLineWidth(2);
@@ -233,7 +232,7 @@ void BattleSceneWidget::set_battleBag() {
         QLabel *label = new QLabel(items[i], frame);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         label->setAlignment(Qt::AlignCenter);
-        label->setStyleSheet("font-size: 12px; font-weight: bold; color: black;");
+        label->setStyleSheet("font-size: 14px; font-weight: bold; color: black;");
 
         QVBoxLayout *vbox = new QVBoxLayout(frame);
         vbox->setContentsMargins(0, 0, 0, 0);

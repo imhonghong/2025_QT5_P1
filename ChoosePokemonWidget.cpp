@@ -29,33 +29,37 @@ ChoosePokemonWidget::ChoosePokemonWidget(PokemonCollection *collection, QWidget 
     };
 
     QVector<PokemonData> pokemons = {
-        {"Charmander", ":/battle/data/battle/charmander.png", QPoint(30, 60)},
-        {"Squirtle",   ":/battle/data/battle/squirtle.png",   QPoint(120, 60)},
-        {"Bulbasaur",  ":/battle/data/battle/bulbasaur.png",  QPoint(210, 60)}
+        {"Charmander", ":/battle/data/battle/charmander.png", QPoint(20, 75)},
+        {"Squirtle",   ":/battle/data/battle/squirtle.png",   QPoint(110, 75)},
+        {"Bulbasaur",  ":/battle/data/battle/bulbasaur.png",  QPoint(200, 75)}
     };
+
+    QLabel *instruction = new QLabel("Choose a pokemon as your first partner:", this);
+    instruction->setAlignment(Qt::AlignCenter);
+    instruction->setStyleSheet("font-size: 14px; font-weight: bold; color: black;");
+    instruction->setGeometry(0, 30, this->width(), 30);
 
     for (int i = 0; i < pokemons.size(); ++i) {
         QFrame *frame = new QFrame(this);
         frame->setFrameShape(QFrame::Box);
         frame->setLineWidth(2);
-        frame->setStyleSheet("border: 2px solid white;");
-        frame->setGeometry(pokemons[i].pos.x(), pokemons[i].pos.y(), 60, 80);
+        frame->setGeometry(pokemons[i].pos.x(), pokemons[i].pos.y(), 80, 120);
 
         QLabel *icon = new QLabel(frame);
-        icon->setPixmap(QPixmap(pokemons[i].imagePath).scaled(60, 60));
+        icon->setPixmap(QPixmap(pokemons[i].imagePath).scaled(80, 80));
         icon->setAlignment(Qt::AlignCenter);
-        icon->setGeometry(0, 0, 60, 60);
+        icon->setGeometry(0, 0, 80, 80);
+        icon->setStyleSheet("border: none;");
 
         QLabel *label = new QLabel(pokemons[i].name, frame);
         label->setObjectName("nameLabel"); // 🩹 加上這行
         label->setAlignment(Qt::AlignCenter);
-        label->setGeometry(0, 60, 60, 20);
-        label->setStyleSheet("font-size: 12px; font-weight: bold; color: black;");
+        label->setGeometry(0, 90, 80, 30);
+        label->setStyleSheet("font-size: 12px; font-weight: bold; color: black; border: none;");
 
         pokemonFrames.append(frame);
         frame->installEventFilter(this);
     }
-
     updateFrameFocus(pokemonFrames, selectedIndex);
 }
 
@@ -79,7 +83,6 @@ void ChoosePokemonWidget::keyPressEvent(QKeyEvent *event) {
         } else if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
             if (confirmSelectedIndex == 0) { // Yes
                 Pokemon *p = Pokemon::createPokemon(selectedPokemonName, 1, false);
-                Q_ASSERT_X(p != nullptr, "ChoosePokemonWidget", "Pokemon::createPokemon returned nullptr");
                 collection->addPokemon(p);
                 DialogWidget *dw = new DialogWidget(QStringList({QString("%1 is now in your bag!").arg(selectedPokemonName)}), parentWidget(), true);
                 QTimer::singleShot(1000, dw, &QWidget::close);
@@ -104,8 +107,6 @@ void ChoosePokemonWidget::keyPressEvent(QKeyEvent *event) {
         if (label) {
             showConfirmDialog(label->text());
         }
-    } else if (event->key() == Qt::Key_Escape) {
-        close();
     }
 
     updateFrameFocus(pokemonFrames, selectedIndex);
@@ -139,10 +140,10 @@ void ChoosePokemonWidget::showConfirmDialog(const QString &name) {
     confirmWidget->move(25, 75);
     confirmWidget->setStyleSheet("background-color: white; border: 2px solid black;");
 
-    QLabel *label = new QLabel(QString("Choose %1 as your partner?").arg(name), confirmWidget);
+    QLabel *label = new QLabel(QString("Choose %1 \nas your partner?").arg(name), confirmWidget);
     label->setWordWrap(true);
     label->setAlignment(Qt::AlignCenter);
-    label->setGeometry(10, 5, 230, 40);
+    label->setGeometry(10, 5, 230, 50);
 
     confirmFrames.clear();
 
