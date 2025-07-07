@@ -105,4 +105,5 @@ private:
     void set_fightMenu();
     void set_battleBag();
     void set_etherMenu();
+
 };

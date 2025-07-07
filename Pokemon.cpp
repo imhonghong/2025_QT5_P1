@@ -136,23 +136,37 @@ void Pokemon::levelUp() {
     }
 
     // 學會新技能
-    if (skillTable.contains(name)) {
-        QVector<QString> skills = skillTable[name];
+    // 先加入 nameKey 對應進化前名稱
+    QString nameKey = name;
+    if (name == "Charmeleon" || name == "Charizard")
+        nameKey = "Charmander";
+    else if (name == "Wartortle" || name == "Blastoise")
+        nameKey = "Squirtle";
+    else if (name == "Ivysaur" || name == "Venusaur")
+        nameKey = "Bulbasaur";
+
+    // 使用 nameKey 查表
+    if (skillTable.contains(nameKey)) {
+        QVector<QString> skills = skillTable[nameKey];
         if (level >= 1 && skills.size() >= 1 && moves.size() < 1) {
             QStringList parts = skills[0].split(":");
             addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+            qDebug() << name << "learned" << parts[0] << "at level" << level;
         }
         if (level >= 2 && skills.size() >= 2 && moves.size() < 2) {
             QStringList parts = skills[1].split(":");
             addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+            qDebug() << name << "learned" << parts[0] << "at level" << level;
         }
         if (level >= 3 && skills.size() >= 3 && moves.size() < 3) {
             QStringList parts = skills[2].split(":");
             addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+            qDebug() << name << "learned" << parts[0] << "at level" << level;
         }
         if (level >= 4 && skills.size() >= 4 && moves.size() < 4) {
             QStringList parts = skills[3].split(":");
             addMove(new Move(parts[0], parts[1].toInt(), parts[2].toInt()));
+            qDebug() << name << "learned" << parts[0] << "at level" << level;
         }
     }
 

@@ -63,8 +63,8 @@ void BattleSceneWidget::setupUI() {
                 hideSwitchPokemonMenu();
 
                 // 進入敵方回合
-                QTimer::singleShot(500, this, [this]() {
-                    // processEnemyTurn();
+                QTimer::singleShot(1000, this, [this]() {
+                    processEnemyTurn();
                 });
             }
         });
@@ -150,7 +150,6 @@ void BattleSceneWidget::onSkillClicked() {
         // 執行升級
         playerPokemon->levelUp();
         messageLabel->setText( "beats " +wildPokemon->getName()+"\n"+playerPokemon->getName() + "level up!");
-
         // 延遲 1000ms 後關閉戰鬥
         QTimer::singleShot(1000, this, [this]() {
             emit battleEnded();
