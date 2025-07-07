@@ -148,6 +148,7 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
             else if (auto table = dynamic_cast<LabTableBarrier*>(barrier)) {
                 if (table->canInteract(player->getX(), player->getY())) {
                     table->interactWithPlayer(this, pokemonCollection);
+                    canMove = false;
                     break;
                 }
             }

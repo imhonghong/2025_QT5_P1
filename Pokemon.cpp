@@ -89,7 +89,14 @@ QString Pokemon::getImagePath(bool useFront) const {
 }
 
 Pokemon* Pokemon::createPokemon(const QString &name, int level, bool isWild) {
-    if (!hpTable.contains(name)) return nullptr;
+
+    qDebug() << "[createPokemon] raw name:" << name;
+    QString key = name.trimmed();
+    qDebug() << "[createPokemon] trimmed key:" << key;
+    if (!hpTable.contains(key)) {
+        qDebug() << "createPokemon failed, key not found in hpTable:" << key;
+        return nullptr;
+    }
 
     int stage = (level <= 1) ? 0 : (level <= 3) ? 1 : 2;
     int hp = hpTable[name][stage];

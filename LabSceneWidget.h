@@ -14,7 +14,7 @@ class LabSceneWidget : public QWidget {
 
 public:
     explicit LabSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, QWidget *parent = nullptr);
-
+    bool canMove = true;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -43,5 +43,4 @@ private:
     BagWidget *bagWidget = nullptr;
     PokemonCollection *pokemonCollection;
 
-    bool canMove = true;
 };
