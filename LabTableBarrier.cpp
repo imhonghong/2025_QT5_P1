@@ -19,11 +19,15 @@ bool LabTableBarrier::canInteract(int playerX, int playerY) const {
 
 void LabTableBarrier::interactWithPlayer(QWidget *parent, PokemonCollection *pokemonCollection) {
     auto lab = qobject_cast<LabSceneWidget*>(parent);
-    if (lab) lab->canMove = false;
 
     if (hasChosen) {
-        new DialogWidget(QStringList({"You already received your Pokémon!"}), parent);
-        lab->canMove = true;
+        auto dialog = new DialogWidget(QStringList({"You already received your Pokémon!"}), parent);
+        if (lab) {
+            QObject::connect(dialog, &QWidget::destroyed, lab, [lab]() {
+                lab->canMove = true;
+                lab->setFocus();
+            });
+        }
         return;
     }
 

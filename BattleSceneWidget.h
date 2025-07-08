@@ -84,6 +84,7 @@ private:
     void set_battleBag();
     void set_etherMenu();
     void set_switchPokemonMenu();
+    void set_floatingHintLabel();
 
     void updateInfo();
 
@@ -111,4 +112,8 @@ private:
                             int columns);
 
     void processEnemyTurn();
+    void animateHpBar(QProgressBar *bar, int startValue, int endValue);
+
+    QLabel *floatingHintLabel;
+    void showFloatingHint(const QString &text);
 };

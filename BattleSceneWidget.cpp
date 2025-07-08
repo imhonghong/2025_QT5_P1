@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QTimer>
 #include <QRandomGenerator>
+#include <QPropertyAnimation>
 
 BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, QWidget *parent)
     : QWidget(parent), wildPokemon(wildPokemon), bag(bag), collection(collection) {
@@ -19,6 +20,7 @@ BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonColl
 
     setupUI();
     updateInfo();
+    messageLabel->setText("You meet " + wildPokemon->getName() + "!");
 }
 
 void BattleSceneWidget::setupUI() {
@@ -27,6 +29,7 @@ void BattleSceneWidget::setupUI() {
     set_playerPokemon();
     set_wildPokemon();
     set_messageLabel();
+    set_floatingHintLabel();
     set_actionMenu();
     set_fightMenu();
     set_battleBag();
@@ -88,8 +91,9 @@ void BattleSceneWidget::set_wildPokemon() {
 
 void BattleSceneWidget::set_messageLabel() {
     messageLabel = new QLabel(this);
-    messageLabel->setStyleSheet("color: white; font-weight: bold;");
-    messageLabel->setGeometry(36, 350, 450, 60);
+    messageLabel->setStyleSheet("color: white; font-size: 18px; font-weight: bold;");
+    messageLabel->setGeometry(36, 330, 200, 60);
+    messageLabel->setWordWrap(true);
 }
 
 void BattleSceneWidget::set_actionMenu() {
@@ -205,7 +209,7 @@ void BattleSceneWidget::set_battleBag() {
     bagMenu->hide();
 
     QVBoxLayout *vLayout = new QVBoxLayout(bagMenu);
-    vLayout->setContentsMargins(10, 10, 10, 10);
+    vLayout->setContentsMargins(5, 5, 5, 5);
     vLayout->setSpacing(5);
 
     QLabel *title = new QLabel("Choose an item to use:\n(Press Q or Esc to quit)", bagMenu);
@@ -214,7 +218,7 @@ void BattleSceneWidget::set_battleBag() {
     vLayout->addWidget(title);
 
     QHBoxLayout *hLayout = new QHBoxLayout();
-    hLayout->setSpacing(10);
+    hLayout->setSpacing(3);
     hLayout->setContentsMargins(0, 0, 0, 0);
 
     QStringList items = {
@@ -232,14 +236,14 @@ void BattleSceneWidget::set_battleBag() {
         QLabel *label = new QLabel(items[i], frame);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         label->setAlignment(Qt::AlignCenter);
-        label->setStyleSheet("font-size: 14px; font-weight: bold; color: black;");
+        label->setStyleSheet("font-size: 16px; font-weight: bold; color: black;");
 
         QVBoxLayout *vbox = new QVBoxLayout(frame);
         vbox->setContentsMargins(0, 0, 0, 0);
         vbox->setSpacing(0);
         vbox->addWidget(label);
 
-        frame->setFixedSize(120, 50);
+        frame->setFixedSize(130, 50);
         hLayout->addWidget(frame);
         bagFrames.append(frame);
 
@@ -269,10 +273,11 @@ void BattleSceneWidget::executeBagAction(int idx) {
                 bag->useItem("Potion");
                 bagMenu->hide();
                 updateInfo();
-                QTimer::singleShot(500, this, [this]() { processEnemyTurn(); });
                 messageLabel->setText(playerPokemon->getName() + " restored HP!");
+                QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
             } else {
-                messageLabel->setText("No Potion left!");
+                showFloatingHint("No potion remains!");
+                return;
             }
             break;
         }
@@ -281,7 +286,8 @@ void BattleSceneWidget::executeBagAction(int idx) {
                 bagMenu->hide();
                 etherMenu->show();
             } else {
-                messageLabel->setText("No Ether left!");
+                showFloatingHint("No Ether remains!");
+                return;
             }
             break;
         }
@@ -296,16 +302,11 @@ void BattleSceneWidget::executeBagAction(int idx) {
                     QTimer::singleShot(1000, this, [this]() { emit battleEnded(); close(); });
                 } else {
                     messageLabel->setText("The Pokémon broke free!");
-                    QTimer::singleShot(500, this, [this]() { processEnemyTurn(); });
+                    QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
                 }
             } else {
-                messageLabel->setText("No Poké Ball left!");
+                showFloatingHint("No Poké Ball left!");
             }
-            break;
-        }
-        case 3: { // Back
-            bagMenu->hide();
-            actionMenu->show();
             break;
         }
     }
@@ -385,7 +386,7 @@ void BattleSceneWidget::executeEtherAction(int idx) {
         bag->useItem("Ether");
         messageLabel->setText(move->getName() + "'s PP restored!");
         etherMenu->hide();
-        QTimer::singleShot(500, this, [this]() { processEnemyTurn(); });
+        QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
     } else {
         etherMenu->hide();
         bagMenu->show();
@@ -398,9 +399,18 @@ void BattleSceneWidget::set_switchPokemonMenu() {
     switchPokemonMenu->setStyleSheet("background-color: white;");
     switchPokemonMenu->hide();
 
-    QHBoxLayout *layout = new QHBoxLayout(switchPokemonMenu);
-    layout->setContentsMargins(20, 10, 20, 10);
+    QVBoxLayout *vLayout = new QVBoxLayout(switchPokemonMenu);
+    vLayout->setContentsMargins(5, 5, 5, 5);
+    vLayout->setSpacing(5);
+
+    QLabel *title = new QLabel("Choose a Pokémon to switch:\n(Press Q or Esc to quit)", switchPokemonMenu);
+    title->setStyleSheet("font-size: 18px; font-weight: bold; color: black;");
+    title->setAlignment(Qt::AlignCenter);
+    vLayout->addWidget(title);
+
+    QHBoxLayout *layout = new QHBoxLayout();
     layout->setSpacing(10);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     QVector<Pokemon*> pokemons = collection->getAllPokemons();
     for (int i = 0; i < 4; ++i) {
@@ -412,7 +422,13 @@ void BattleSceneWidget::set_switchPokemonMenu() {
         QString text;
         if (i < pokemons.size()) {
             Pokemon* p = pokemons[i];
-            text = p->getName() + QString("\nLv:%1 HP:%2/%3")
+
+            QString nameDisplay = p->getName();
+            if (p == playerPokemon) {
+                nameDisplay += "(now)";
+            }
+
+            text = nameDisplay + QString("\nLv:%1 HP:%2/%3")
                    .arg(p->getLevel()).arg(p->getHp()).arg(p->getMaxHp());
         } else {
             text = "No Pokémon";
@@ -434,9 +450,12 @@ void BattleSceneWidget::set_switchPokemonMenu() {
         frame->installEventFilter(this);
     }
 
+    vLayout->addLayout(layout);
+
     selectedSwitchIndex = 0;
     updateSwitchFrameFocus();
 }
+
 
 void BattleSceneWidget::updateSwitchFrameFocus() {
     for (int i = 0; i < switchFrames.size(); ++i) {
@@ -456,11 +475,10 @@ void BattleSceneWidget::executeSwitchPokemonAction(int idx) {
             switchPokemonMenu->hide();
             QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
         } else {
-            messageLabel->setText("Cannot switch to this Pokémon!");
+            showFloatingHint("Cannot switch to this Pokémon!");
         }
     } else {
-        switchPokemonMenu->hide();
-        actionMenu->show();
+        return;
     }
 }
 
@@ -497,8 +515,8 @@ void BattleSceneWidget::onRunClicked() {
 
 void BattleSceneWidget::updateInfo() {
     playerHpLabel->setText(QString("HP: %1/%2").arg(playerPokemon->getHp()).arg(playerPokemon->getMaxHp()));
-    playerHpBar->setValue(playerPokemon->getHp());
-    wildHpBar->setValue(wildPokemon->getHp());
+    animateHpBar(playerHpBar, playerHpBar->value(), playerPokemon->getHp());
+    animateHpBar(wildHpBar, wildHpBar->value(), wildPokemon->getHp());
 }
 
 void BattleSceneWidget::processEnemyTurn() {
@@ -528,11 +546,11 @@ void BattleSceneWidget::processEnemyTurn() {
     if (calcDamage < 1) calcDamage = 1;
 
     playerPokemon->receiveDamage(calcDamage);
-    updateInfo();
 
     QString damageMsg = wildPokemon->getName() + " dealt " +
                         QString::number(calcDamage) + " damage!";
     messageLabel->setText(damageMsg);
+    updateInfo();
 
     if (playerPokemon->getHp() <= 0) {
         messageLabel->setText(playerPokemon->getName() + " fainted!");
@@ -671,7 +689,7 @@ void BattleSceneWidget::useSkill(int idx) {
 
     Move* move = moves[idx];
     if (move->getCurrentPp() <= 0) {
-        messageLabel->setText("No PP left for this move!");
+        showFloatingHint("No PP left for this move!");
         return;
     }
 
@@ -686,14 +704,14 @@ void BattleSceneWidget::useSkill(int idx) {
 
     if (wildPokemon->getHp() <= 0) {
         messageLabel->setText("You win!");
-        playerPokemon->levelUp();  // 🩹 加上升級
-        updateInfo();              // 🩹 更新介面
+        playerPokemon->levelUp();
+        updateInfo();
         QTimer::singleShot(1000, this, [this]() {
             emit battleEnded();
             close();
         });
     } else {
-        QTimer::singleShot(500, this, [this]() { processEnemyTurn(); });
+        QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
     }
 }
 
@@ -741,3 +759,36 @@ void BattleSceneWidget::handleMenuKeyPress(QKeyEvent *event,
     }
 }
 
+void BattleSceneWidget::animateHpBar(QProgressBar *bar, int startValue, int endValue) {
+    QPropertyAnimation *animation = new QPropertyAnimation(bar, "value", this);
+    animation->setDuration(500); // 0.5 秒
+    animation->setStartValue(startValue);
+    animation->setEndValue(endValue);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void BattleSceneWidget::showFloatingHint(const QString &text) {
+    floatingHintLabel->setText(text);
+    floatingHintLabel->adjustSize();
+    // 置中顯示
+    int x = (width() - floatingHintLabel->width()) / 2;
+    int y = height() / 3; // 或其他位置
+    floatingHintLabel->move(x, y);
+    floatingHintLabel->show();
+
+    QTimer::singleShot(1000, floatingHintLabel, &QLabel::hide);
+}
+
+void BattleSceneWidget::set_floatingHintLabel(){
+    floatingHintLabel = new QLabel(this);
+    floatingHintLabel->setStyleSheet(
+        "color: white; "
+        "background-color: rgba(0, 0, 0, 150); "
+        "font-weight: bold; "
+        "font-size: 18px; "
+        "border-radius: 5px; "
+        "padding: 5px;"
+    );
+    floatingHintLabel->setAlignment(Qt::AlignCenter);
+    floatingHintLabel->hide();
+}
