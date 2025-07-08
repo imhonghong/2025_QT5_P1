@@ -9,6 +9,7 @@ public:
 
     void addPokemon(Pokemon *pokemon);
     QVector<Pokemon*> getAllPokemons() const;
+    void reorderPokemons();
 
 private:
     QVector<Pokemon*> pokemons;

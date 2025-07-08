@@ -22,9 +22,9 @@ LabSceneWidget::LabSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, Q
     addLabBarrier();//障礙物
     exitZone = QRect(195, 430, 30, 20); //出口
 
-    posLabel = new QLabel(this);
-    posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
-    posLabel->setGeometry(10, 10, 200, 20);
+    // posLabel = new QLabel(this);
+    // posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
+    // posLabel->setGeometry(10, 10, 200, 20);
 }
 
 void LabSceneWidget::addLabBarrier()
@@ -191,7 +191,7 @@ void LabSceneWidget::keyPressEvent(QKeyEvent *event) {
     player->updateWalkFrame(); // 切換動畫幀
     // qDebug() << "Key pressed:" << event->key();
 
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 
@@ -199,7 +199,7 @@ void LabSceneWidget::keyReleaseEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     player->setWalking(false);
 
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 

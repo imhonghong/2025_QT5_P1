@@ -21,9 +21,9 @@ GrasslandSceneWidget::GrasslandSceneWidget(Bag *bag, PokemonCollection *pokemonC
 
     player = new Player(525, 1619);
 
-    posLabel = new QLabel(this);
-    posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
-    posLabel->setGeometry(10, 10, 200, 20);
+    // posLabel = new QLabel(this);
+    // posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
+    // posLabel->setGeometry(10, 10, 200, 20);
     addGrasslandBarrier();
 }
 
@@ -63,6 +63,7 @@ void GrasslandSceneWidget::paintEvent(QPaintEvent *event) {
         painter.fillRect(playerScreenX, playerScreenY, player->getRect().width(), player->getRect().height(), Qt::red);
     }
 
+    /*
     painter.setBrush(QColor(0, 255, 0, 100)); // 半透明綠色
     for (const Barrier* barrier : barriers) {
         const TallGrass* grass = dynamic_cast<const TallGrass*>(barrier);
@@ -73,6 +74,7 @@ void GrasslandSceneWidget::paintEvent(QPaintEvent *event) {
             painter.drawRect(drawX, drawY, drawRect.width(), drawRect.height());
         }
     }
+    */
 }
 
 void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
@@ -165,14 +167,14 @@ void GrasslandSceneWidget::keyPressEvent(QKeyEvent *event) {
     }
 
     player->updateWalkFrame();
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 
 void GrasslandSceneWidget::keyReleaseEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     player->setWalking(false);
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 
 }

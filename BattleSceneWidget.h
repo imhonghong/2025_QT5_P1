@@ -9,10 +9,11 @@
 #include "Bag.h"
 #include "PokemonCollection.h"
 
+class MainWindow;
 class BattleSceneWidget : public QWidget {
     Q_OBJECT
 public:
-    explicit BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, QWidget *parent = nullptr);
+    explicit BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, MainWindow *mainWindow, QWidget *parent = nullptr);
 
 signals:
     void battleEnded();
@@ -32,6 +33,7 @@ private:
     Pokemon *playerPokemon;
     Bag *bag;
     PokemonCollection *collection;
+    MainWindow *mainWindow;
 
     QLabel *backgroundLabel;
     QLabel *messageLabel;
@@ -102,6 +104,7 @@ private:
 
     void updateSkillInfoDisplay(int idx);
     void updateEtherMenu();
+    void updateSwitchPokemonMenu();
 
     void handleEscKey();
     void handleMenuKeyPress(QKeyEvent *event,

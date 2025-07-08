@@ -4,6 +4,7 @@
 #include "TownSceneWidget.h"
 #include "GrasslandSceneWidget.h"
 #include "BattleSceneWidget.h"
+#include "GameOverScene.h"
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,11 +20,14 @@ MainWindow::MainWindow(QWidget *parent)
     labScene = new LabSceneWidget(bag, pokemonCollection);
     townScene = new TownSceneWidget(bag, pokemonCollection);
     grasslandScene = new GrasslandSceneWidget(bag, pokemonCollection);
+    gameOverScene = new GameOverScene();
+
 
     stackedWidget->addWidget(titleScene);
     stackedWidget->addWidget(labScene);
     stackedWidget->addWidget(townScene);
     stackedWidget->addWidget(grasslandScene);
+    stackedWidget->addWidget(gameOverScene);
 
     stackedWidget->setCurrentWidget(titleScene);
     QTimer::singleShot(0, this, [this]() {
@@ -68,13 +72,32 @@ void MainWindow::returnToTown() {
 }
 
 void MainWindow::startBattle(Pokemon* wildPokemon) {
-    BattleSceneWidget *battleScene = new BattleSceneWidget(wildPokemon, bag, pokemonCollection);
+    BattleSceneWidget *battleScene = new BattleSceneWidget(wildPokemon, bag, pokemonCollection, this);
+
     stackedWidget->addWidget(battleScene);
     stackedWidget->setCurrentWidget(battleScene);
 
     connect(battleScene, &BattleSceneWidget::battleEnded, this, [=]() {
         stackedWidget->removeWidget(battleScene);
         battleScene->deleteLater();
-        stackedWidget->setCurrentWidget(grasslandScene);
+
+        // 判斷是否全滅
+        bool allDead = true;
+        for (Pokemon* p : pokemonCollection->getAllPokemons()) {
+            if (p->getHp() > 0) {
+                allDead = false;
+                break;
+            }
+        }
+        if (allDead) {
+            showGameOver();
+        } else {
+            stackedWidget->setCurrentWidget(grasslandScene);
+        }
     });
+}
+
+void MainWindow::showGameOver() {
+    stackedWidget->setCurrentWidget(gameOverScene);
+    QTimer::singleShot(0, gameOverScene, [this]() { gameOverScene->setFocus(); });
 }

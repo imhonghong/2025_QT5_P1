@@ -19,9 +19,9 @@ TownSceneWidget::TownSceneWidget(Bag *bag, PokemonCollection *pokemonCollection,
     addTownBarrier();
     generateBoxes();
 
-    posLabel = new QLabel(this);
-    posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
-    posLabel->setGeometry(10, 10, 200, 20);
+    // posLabel = new QLabel(this);
+    // posLabel->setStyleSheet("color: white; font-weight: bold; background-color: rgba(0,0,0,128);");
+    // posLabel->setGeometry(10, 10, 200, 20);
 }
 
 void TownSceneWidget::paintEvent(QPaintEvent *event) {
@@ -172,14 +172,14 @@ void TownSceneWidget::keyPressEvent(QKeyEvent *event) {
     }
 
     player->updateWalkFrame();
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 
 void TownSceneWidget::keyReleaseEvent(QKeyEvent *event) {
     Q_UNUSED(event);
     player->setWalking(false);
-    posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
+    // posLabel->setText(QString("X: %1, Y: %2").arg(player->getX()).arg(player->getY()));
     update();
 }
 

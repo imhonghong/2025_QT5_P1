@@ -1,4 +1,5 @@
 #include "BattleSceneWidget.h"
+#include "MainWindow.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPixmap>
@@ -8,9 +9,10 @@
 #include <QRandomGenerator>
 #include <QPropertyAnimation>
 
-BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, QWidget *parent)
-    : QWidget(parent), wildPokemon(wildPokemon), bag(bag), collection(collection) {
+BattleSceneWidget::BattleSceneWidget(Pokemon *wildPokemon, Bag *bag, PokemonCollection *collection, MainWindow *mainWindow, QWidget *parent)
+    : QWidget(parent), wildPokemon(wildPokemon), bag(bag), collection(collection), mainWindow(mainWindow) {
 
+    collection->reorderPokemons();
     if (!collection->getAllPokemons().isEmpty()) {
         playerPokemon = collection->getAllPokemons().first();
     } else {
@@ -298,10 +300,12 @@ void BattleSceneWidget::executeBagAction(int idx) {
                 bag->useItem("Poké Ball");
                 if (roll < captureRate) {
                     collection->addPokemon(wildPokemon);
-                    messageLabel->setText(wildPokemon->getName() + " was caught!");
+                    showFloatingHint(wildPokemon->getName() + " was caught!");
                     QTimer::singleShot(1000, this, [this]() { emit battleEnded(); close(); });
                 } else {
-                    messageLabel->setText("The Pokémon broke free!");
+                    showFloatingHint("The Pokémon broke free!");
+                    bagMenu->hide();
+                    actionMenu->show();
                     QTimer::singleShot(1000, this, [this]() { processEnemyTurn(); });
                 }
             } else {
@@ -500,6 +504,7 @@ void BattleSceneWidget::onBagClicked() {
 
 void BattleSceneWidget::onPokemonClicked() {
     actionMenu->hide();
+    updateSwitchPokemonMenu();
     switchPokemonMenu->show();
     selectedSwitchIndex = 0;
     updateSwitchFrameFocus();
@@ -520,14 +525,6 @@ void BattleSceneWidget::updateInfo() {
 }
 
 void BattleSceneWidget::processEnemyTurn() {
-    if (wildPokemon->getHp() <= 0) {
-        messageLabel->setText(wildPokemon->getName() + " fainted!");
-        QTimer::singleShot(1000, this, [this]() {
-            emit battleEnded();
-            close();
-        });
-        return;
-    }
 
     QVector<Move*> moves = wildPokemon->getMoves();
     Move* move = nullptr;
@@ -539,25 +536,38 @@ void BattleSceneWidget::processEnemyTurn() {
     QString moveName = move ? move->getName() : "Tackle";
     int damage = move ? move->getPower() : 10;
 
-    QString msg = wildPokemon->getName() + " uses " + moveName + "!";
-    messageLabel->setText(msg);
-
     int calcDamage = (damage + wildPokemon->getAttack() - playerPokemon->getDefense()) * wildPokemon->getLevel();
     if (calcDamage < 1) calcDamage = 1;
 
     playerPokemon->receiveDamage(calcDamage);
 
-    QString damageMsg = wildPokemon->getName() + " dealt " +
+    QString damageMsg = wildPokemon->getName() + " used "+moveName+ "\n and dealt" +
                         QString::number(calcDamage) + " damage!";
     messageLabel->setText(damageMsg);
     updateInfo();
 
     if (playerPokemon->getHp() <= 0) {
-        messageLabel->setText(playerPokemon->getName() + " fainted!");
-        QTimer::singleShot(1000, this, [this]() {
-            emit battleEnded();
-            close();
-        });
+        if (playerPokemon->getHp() <= 0) {
+            messageLabel->setText(playerPokemon->getName() + " fainted!");
+            QTimer::singleShot(1000, this, [this]() {
+
+                // 檢查是否全隊死亡
+                bool allDead = true;
+                for (Pokemon* p : collection->getAllPokemons()) {
+                    if (p->getHp() > 0) {
+                        allDead = false;
+                        break;
+                    }
+                }
+
+                if (allDead) {
+                    // 觸發 Game Over
+                    mainWindow->showGameOver(); // 需從 BattleSceneWidget 傳入 mainWindow 指標
+                } else {
+                    emit battleEnded();
+                }
+            });
+        }
     } else {
         // 顯示 ActionMenu 以便繼續下一回合
         QTimer::singleShot(1000, this, [this]() {
@@ -699,11 +709,11 @@ void BattleSceneWidget::useSkill(int idx) {
     move->use();
 
     updateInfo();
-    messageLabel->setText(playerPokemon->getName() + " used " + move->getName() + " and dealt " + QString::number(damage) + " damage!");
+    messageLabel->setText(playerPokemon->getName() + " used " + move->getName() + "\nand dealt " + QString::number(damage) + " damage!");
     fightMenu->hide();
 
     if (wildPokemon->getHp() <= 0) {
-        messageLabel->setText("You win!");
+        showFloatingHint("You Win! "+playerPokemon->getName()+" level up.");
         playerPokemon->levelUp();
         updateInfo();
         QTimer::singleShot(1000, this, [this]() {
@@ -791,4 +801,30 @@ void BattleSceneWidget::set_floatingHintLabel(){
     );
     floatingHintLabel->setAlignment(Qt::AlignCenter);
     floatingHintLabel->hide();
+}
+
+void BattleSceneWidget::updateSwitchPokemonMenu() {
+    QVector<Pokemon*> pokemons = collection->getAllPokemons();
+
+    for (int i = 0; i < switchFrames.size(); ++i) {
+        QLabel *label = switchFrames[i]->findChild<QLabel *>();
+        if (!label) continue;
+
+        QString text;
+        if (i < pokemons.size()) {
+            Pokemon* p = pokemons[i];
+
+            QString nameDisplay = p->getName();
+            if (p == playerPokemon) {
+                nameDisplay += " (now)";
+            }
+
+            text = nameDisplay + QString("\nLv:%1 HP:%2/%3")
+                   .arg(p->getLevel()).arg(p->getHp()).arg(p->getMaxHp());
+        } else {
+            text = "No Pokémon";
+        }
+
+        label->setText(text);
+    }
 }

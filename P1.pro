@@ -15,6 +15,7 @@ SOURCES += \
     BoxBarrier.cpp \
     ChoosePokemonWidget.cpp \
     DialogWidget.cpp \
+    GameOverScene.cpp \
     GrasslandSceneWidget.cpp \
     LabSceneWidget.cpp \
     LabTableBarrier.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     BoxBarrier.h \
     ChoosePokemonWidget.h \
     DialogWidget.h \
+    GameOverScene.h \
     GrasslandSceneWidget.h \
     LabSceneWidget.h \
     LabTableBarrier.h \

@@ -10,6 +10,7 @@ class TitleSceneWidget;
 class LabSceneWidget;
 class TownSceneWidget;
 class GrasslandSceneWidget;
+class GameOverScene;
 
 class MainWindow : public QMainWindow
 {
@@ -18,6 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void showGameOver();
 
 private:
     QStackedWidget *stackedWidget;
@@ -26,6 +28,7 @@ private:
     TownSceneWidget *townScene;
     GrasslandSceneWidget *grasslandScene;
     PokemonCollection *pokemonCollection;
+    GameOverScene *gameOverScene;
 
     void setupConnections();
 
@@ -38,4 +41,5 @@ private slots:
     void returnToLab();
     void returnToTown();
     void startBattle(Pokemon* wildPokemon);
+
 };
