@@ -38,21 +38,21 @@ QMap<QString, QStringList> Pokemon::imagePaths = {
 
 
 QMap<QString, QVector<int>> Pokemon::hpTable = {
-    {"Charmander", {30, 80, 100}},
-    {"Squirtle", {30, 80, 100}},
-    {"Bulbasaur", {30, 80, 100}}
+    {"Charmander", {30, 30, 80, 80, 100, 100}},
+    {"Squirtle", {30, 30, 80, 80, 100, 100}},
+    {"Bulbasaur", {30, 30, 80, 80, 100, 100}}
 };
 
 QMap<QString, QVector<int>> Pokemon::atkTable = {
-    {"Charmander", {5, 10, 15}},
-    {"Squirtle", {5, 10, 15}},
-    {"Bulbasaur", {5, 10, 15}}
+    {"Charmander", {5, 5, 10, 10, 15, 15}},
+    {"Squirtle", {5, 5, 10, 10, 15, 15}},
+    {"Bulbasaur", {5, 5, 10, 10, 15, 15}}
 };
 
 QMap<QString, QVector<int>> Pokemon::defTable = {
-    {"Charmander", {5, 10, 15}},
-    {"Squirtle", {5, 10, 15}},
-    {"Bulbasaur", {5, 10, 15}}
+    {"Charmander", {5, 5, 10, 10, 15, 15}},
+    {"Squirtle", {5, 5, 10, 10, 15, 15}},
+    {"Bulbasaur", {5, 5, 10, 10, 15, 15}}
 };
 
 
@@ -135,11 +135,10 @@ void Pokemon::levelUp() {
 
     // 更新 Atk, Def, MaxHP, HP
     if (atkTable.contains(name)) {
-        int stage = (level <= 1) ? 0 : (level <= 3) ? 1 : 2;
-        attack = atkTable[name][stage];
-        defense = defTable[name][stage];
-        maxHp = hpTable[name][stage];
-        hp = maxHp;
+        attack = atkTable[name][level-1];
+        defense = defTable[name][level-1];
+        maxHp = hpTable[name][level-1];
+        hp = hp + hpTable[name][level-1] - hpTable[name][level-2];
     }
 
     // 學會新技能
