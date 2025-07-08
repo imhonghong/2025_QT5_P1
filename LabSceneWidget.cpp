@@ -11,6 +11,8 @@ LabSceneWidget::LabSceneWidget(Bag *bag, PokemonCollection *pokemonCollection, Q
     : QWidget(parent), bag(bag), pokemonCollection(pokemonCollection) {
     setFixedSize(windowWidth, windowHeight);
     setFocusPolicy(Qt::StrongFocus);
+    setFocus();
+
 
     background.load(":/scene/data/scene/lab.png");
     mapWidth = background.width();

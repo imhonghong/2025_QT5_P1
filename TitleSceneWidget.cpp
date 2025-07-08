@@ -1,13 +1,23 @@
 #include "TitleSceneWidget.h"
 #include <QPainter>
 #include <QPixmap>
-#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QTimer>
+#include <QDebug>
 
 TitleSceneWidget::TitleSceneWidget(QWidget *parent) : QWidget(parent) {
     setFixedSize(525, 450); // 與專案一致
+    setFocusPolicy(Qt::StrongFocus);
+    QTimer::singleShot(0, this, [this]() {
+        this->activateWindow();
+        this->raise();
+        this->setFocus(Qt::OtherFocusReason);
+        qDebug() << "[TitleSceneWidget] has focus (delayed):" << this->hasFocus();
+    });
 
+    qDebug() << "TitleSceneWidget has focus:" << this->hasFocus();
     // 建立提示文字
-    hintLabel = new QLabel("Click anywhere to start", this);
+    hintLabel = new QLabel("Press any key to start", this);
     hintLabel->setStyleSheet("font-size: 20px; color: white;;");
     hintLabel->setGeometry(15, 370, 300, 30);
 
@@ -40,7 +50,8 @@ void TitleSceneWidget::paintEvent(QPaintEvent *event) {
     }
 }
 
-void TitleSceneWidget::mousePressEvent(QMouseEvent *event) {
+void TitleSceneWidget::keyPressEvent(QKeyEvent *event) {
+
     Q_UNUSED(event);
     emit startGame();
 }

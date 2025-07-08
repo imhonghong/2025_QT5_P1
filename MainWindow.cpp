@@ -4,18 +4,18 @@
 #include "TownSceneWidget.h"
 #include "GrasslandSceneWidget.h"
 #include "BattleSceneWidget.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      stackedWidget(new QStackedWidget(this)),
-      titleScene(new TitleSceneWidget)
+      stackedWidget(new QStackedWidget(this))
 {
     setFixedSize(525, 450);
     setCentralWidget(stackedWidget);
 
     bag = new Bag();
     pokemonCollection = new PokemonCollection();
-
+    titleScene = new TitleSceneWidget;
     labScene = new LabSceneWidget(bag, pokemonCollection);
     townScene = new TownSceneWidget(bag, pokemonCollection);
     grasslandScene = new GrasslandSceneWidget(bag, pokemonCollection);
@@ -24,7 +24,14 @@ MainWindow::MainWindow(QWidget *parent)
     stackedWidget->addWidget(labScene);
     stackedWidget->addWidget(townScene);
     stackedWidget->addWidget(grasslandScene);
+
     stackedWidget->setCurrentWidget(titleScene);
+    QTimer::singleShot(0, this, [this]() {
+        titleScene->setFocus(Qt::OtherFocusReason);
+        titleScene->activateWindow();
+        titleScene->raise();
+        qDebug() << "TitleScene has focus (delayed):" << titleScene->hasFocus();
+    });
     setupConnections();
 
 }
