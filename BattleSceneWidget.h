@@ -104,6 +104,7 @@ private:
 
     void updateSkillInfoDisplay(int idx);
     void updateEtherMenu();
+    void updateBagMenu();
     void updateSwitchPokemonMenu();
 
     void handleEscKey();

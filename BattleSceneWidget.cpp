@@ -273,6 +273,7 @@ void BattleSceneWidget::executeBagAction(int idx) {
                 int newHp = qMin(playerPokemon->getMaxHp(), playerPokemon->getHp() + heal);
                 playerPokemon->setHp(newHp);
                 bag->useItem("Potion");
+                updateBagMenu();
                 bagMenu->hide();
                 updateInfo();
                 messageLabel->setText(playerPokemon->getName() + " restored HP!");
@@ -286,6 +287,7 @@ void BattleSceneWidget::executeBagAction(int idx) {
         case 1: { // Use Ether
             if (bag->getItemCount("Ether") > 0) {
                 bagMenu->hide();
+                updateBagMenu();
                 etherMenu->show();
             } else {
                 showFloatingHint("No Ether remains!");
@@ -298,6 +300,7 @@ void BattleSceneWidget::executeBagAction(int idx) {
                 double captureRate = 0.5 + 0.5 * (1.0 - (double)wildPokemon->getHp() / wildPokemon->getMaxHp());
                 double roll = QRandomGenerator::global()->generateDouble();
                 bag->useItem("Poké Ball");
+                updateBagMenu();
                 if (roll < captureRate) {
                     collection->addPokemon(wildPokemon);
                     showFloatingHint(wildPokemon->getName() + " was caught!");
@@ -519,10 +522,31 @@ void BattleSceneWidget::onRunClicked() {
 }
 
 void BattleSceneWidget::updateInfo() {
+    // 更新玩家寶可夢基本資訊
+    playerNameLabel->setText(playerPokemon->getName());
+    playerLevelLabel->setText(QString("Lv:%1").arg(playerPokemon->getLevel()));
     playerHpLabel->setText(QString("HP: %1/%2").arg(playerPokemon->getHp()).arg(playerPokemon->getMaxHp()));
+    playerHpBar->setRange(0, playerPokemon->getMaxHp());
     animateHpBar(playerHpBar, playerHpBar->value(), playerPokemon->getHp());
-    animateHpBar(wildHpBar, wildHpBar->value(), wildPokemon->getHp());
+    playerPokemonLabel->setPixmap(QPixmap(playerPokemon->getImagePath(false)).scaled(120, 120));
+
+    // 更新敵人血條（如果還活著）
+    if (wildPokemon) {
+        animateHpBar(wildHpBar, wildHpBar->value(), wildPokemon->getHp());
+    }
+
+    // 更新技能選單（fight menu）
+    QVector<Move*> moves = playerPokemon->getMoves();
+    for (int i = 0; i < skillFrames.size(); ++i) {
+        QLabel* label = skillFrames[i]->findChild<QLabel*>();
+        if (label) {
+            label->setText(i < moves.size() ? moves[i]->getName() : "No Skill");
+        }
+    }
+
+    updateSkillInfoDisplay(0); // 顯示第一個技能的PP與Power（預選）
 }
+
 
 void BattleSceneWidget::processEnemyTurn() {
 
@@ -826,5 +850,20 @@ void BattleSceneWidget::updateSwitchPokemonMenu() {
         }
 
         label->setText(text);
+    }
+}
+
+void BattleSceneWidget::updateBagMenu() {
+    QStringList items = {
+        QString("Use Potion \n(1/%1)").arg(bag->getItemCount("Potion")),
+        QString("Use Ether \n(1/%1)").arg(bag->getItemCount("Ether")),
+        QString("Throw Poké Ball \n(1/%1)").arg(bag->getItemCount("Poké Ball"))
+    };
+
+    for (int i = 0; i < bagFrames.size(); ++i) {
+        QLabel* label = bagFrames[i]->findChild<QLabel*>();
+        if (label && i < items.size()) {
+            label->setText(items[i]);
+        }
     }
 }
